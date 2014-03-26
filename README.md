@@ -1,3 +1,11 @@
+## How to run our tests
+
+* First choose parameters in `db/db_test.cc`, lines 6114-6117.
+* Run `make db_test`
+* Run `db_test`
+
+
+
 rocksdb: A persistent key-value store for flash storage
 Authors: * The Facebook Database Engineering Team
          * Build on earlier work on leveldb by Sanjay Ghemawat
