@@ -498,6 +498,13 @@ class DBTest {
     }
   }
 
+  // IGOR: Put without the write-ahead log
+  Status PutNoWAL(const Slice& k, const Slice& v) {
+    WriteOptions wo = WriteOptions();
+    wo.disableWAL = true;
+    return db_->Put(wo, k, v);
+  }
+
   Status Delete(const std::string& k) {
     return db_->Delete(WriteOptions(), k);
   }
@@ -5350,103 +5357,6 @@ TEST(DBTest, ReadCompaction) {
   }
 }
 
-// Multi-threaded test:
-namespace {
-
-static const int kNumThreads = 4;
-static const int kTestSeconds = 10;
-static const int kNumKeys = 1000;
-
-struct MTState {
-  DBTest* test;
-  port::AtomicPointer stop;
-  port::AtomicPointer counter[kNumThreads];
-  port::AtomicPointer thread_done[kNumThreads];
-};
-
-struct MTThread {
-  MTState* state;
-  int id;
-};
-
-static void MTThreadBody(void* arg) {
-  MTThread* t = reinterpret_cast<MTThread*>(arg);
-  int id = t->id;
-  DB* db = t->state->test->db_;
-  uintptr_t counter = 0;
-  fprintf(stderr, "... starting thread %d\n", id);
-  Random rnd(1000 + id);
-  std::string value;
-  char valbuf[1500];
-  while (t->state->stop.Acquire_Load() == nullptr) {
-    t->state->counter[id].Release_Store(reinterpret_cast<void*>(counter));
-
-    int key = rnd.Uniform(kNumKeys);
-    char keybuf[20];
-    snprintf(keybuf, sizeof(keybuf), "%016d", key);
-
-    if (rnd.OneIn(2)) {
-      // Write values of the form <key, my id, counter>.
-      // We add some padding for force compactions.
-      snprintf(valbuf, sizeof(valbuf), "%d.%d.%-1000d",
-               key, id, static_cast<int>(counter));
-      ASSERT_OK(t->state->test->Put(Slice(keybuf), Slice(valbuf)));
-    } else {
-      // Read a value and verify that it matches the pattern written above.
-      Status s = db->Get(ReadOptions(), Slice(keybuf), &value);
-      if (s.IsNotFound()) {
-        // Key has not yet been written
-      } else {
-        // Check that the writer thread counter is >= the counter in the value
-        ASSERT_OK(s);
-        int k, w, c;
-        ASSERT_EQ(3, sscanf(value.c_str(), "%d.%d.%d", &k, &w, &c)) << value;
-        ASSERT_EQ(k, key);
-        ASSERT_GE(w, 0);
-        ASSERT_LT(w, kNumThreads);
-        ASSERT_LE((unsigned int)c, reinterpret_cast<uintptr_t>(
-            t->state->counter[w].Acquire_Load()));
-      }
-    }
-    counter++;
-  }
-  t->state->thread_done[id].Release_Store(t);
-  fprintf(stderr, "... stopping thread %d after %d ops\n", id, int(counter));
-}
-
-}  // namespace
-
-TEST(DBTest, MultiThreaded) {
-  do {
-    // Initialize state
-    MTState mt;
-    mt.test = this;
-    mt.stop.Release_Store(0);
-    for (int id = 0; id < kNumThreads; id++) {
-      mt.counter[id].Release_Store(0);
-      mt.thread_done[id].Release_Store(0);
-    }
-
-    // Start threads
-    MTThread thread[kNumThreads];
-    for (int id = 0; id < kNumThreads; id++) {
-      thread[id].state = &mt;
-      thread[id].id = id;
-      env_->StartThread(MTThreadBody, &thread[id]);
-    }
-
-    // Let them run for a while
-    env_->SleepForMicroseconds(kTestSeconds * 1000000);
-
-    // Stop the threads and wait for them to finish
-    mt.stop.Release_Store(&mt);
-    for (int id = 0; id < kNumThreads; id++) {
-      while (mt.thread_done[id].Acquire_Load() == nullptr) {
-        env_->SleepForMicroseconds(100000);
-      }
-    }
-  } while (ChangeOptions());
-}
 
 // Group commit test:
 namespace {
@@ -6198,6 +6108,120 @@ TEST(DBTest, TailingIteratorPrefixSeek) {
   ASSERT_TRUE(!iter->Valid());
 }
 
+// Multi-threaded test:
+namespace {
+
+static const int kNumThreads = 4;
+static const int kTestSeconds = 10;
+static const int kNumKeys = 1000;
+static const int kWritePercent = 10;
+
+struct MTState {
+  DBTest* test;
+  port::AtomicPointer stop;
+  port::AtomicPointer counter[kNumThreads];
+  port::AtomicPointer thread_done[kNumThreads];
+};
+
+struct MTThread {
+  MTState* state;
+  int id;
+
+  std::string performanceResults;
+};
+
+static void MTThreadBodyIgor(void* arg) {
+  MTThread* t = reinterpret_cast<MTThread*>(arg);
+  int id = t->id;
+  DB* db = t->state->test->db_;
+  int writePeriod = kWritePercent != 0 ? 100/kWritePercent : 0;
+
+  uintptr_t counter = 0;
+
+  fprintf(stderr, "... starting thread %d\n", id);
+  Random rnd(1000 + id);
+  std::string value;
+  char valbuf[1500];
+  while (t->state->stop.Acquire_Load() == nullptr) {
+    t->state->counter[id].Release_Store(reinterpret_cast<void*>(counter));
+
+    int key = rnd.Uniform(kNumKeys);
+    char keybuf[20];
+    snprintf(keybuf, sizeof(keybuf), "%016d", key);
+
+    if (writePeriod != 0 && rnd.OneIn(writePeriod)) {
+      // Write values of the form <key, my id, counter>.
+      // We add some padding for force compactions.
+      snprintf(valbuf, sizeof(valbuf), "%d.%d.%-1000d",
+               key, id, static_cast<int>(counter));
+      
+      Status s = t->state->test->PutNoWAL(Slice(keybuf), Slice(valbuf));
+      ASSERT_OK(s);
+    } else {
+      // Read a value and verify that it matches the pattern written above.
+      Status s = db->Get(ReadOptions(), Slice(keybuf), &value);
+    }
+    counter++;
+  }
+  t->state->thread_done[id].Release_Store(t);
+  fprintf(stderr, "... stopping thread %d after %d ops\n", id, int(counter));
+  
+  
+  t->performanceResults = perf_context.ToString();
+}
+
+}  // namespace
+
+TEST(DBTest, IgorTestMultithreaded) {
+  
+  Options opts = CurrentOptions();
+  opts.statistics = CreateDBStatistics();
+  opts.write_buffer_size = 100000000;
+  opts.max_write_buffer_number = 8;
+  opts.min_write_buffer_number_to_merge = 7;
+  opts.create_if_missing = true;
+  DestroyAndReopen(&opts);
+
+  SetPerfLevel(kEnableTime);
+
+
+  MTState mt;
+  mt.test = this;
+  mt.stop.Release_Store(0);
+  for (int id = 0; id < kNumThreads; id++) {
+    mt.counter[id].Release_Store(0);
+    mt.thread_done[id].Release_Store(0);
+  }
+
+  // Start threads
+  MTThread thread[kNumThreads];
+  for (int id = 0; id < kNumThreads; id++) {
+    thread[id].state = &mt;
+    thread[id].id = id;
+    env_->StartThread(MTThreadBodyIgor, &thread[id]);
+  }
+
+  // Let them run for a while
+  env_->SleepForMicroseconds(kTestSeconds * 1000000);
+
+  // Stop the threads and wait for them to finish
+  mt.stop.Release_Store(&mt);
+  for (int id = 0; id < kNumThreads; id++) {
+    while (mt.thread_done[id].Acquire_Load() == nullptr) {
+      env_->SleepForMicroseconds(100000);
+    }
+  }
+
+  std::cout << std::endl << "=================STATISTICS=================="  << std::endl;
+  std::cout << opts.statistics->ToString();  
+
+  std::cout << std::endl << "=================PERFOMANCE==================" << std::endl;
+  for (int id = 0; id < kNumThreads; id++) {
+
+    std::cout << "***Thread " << id << "***" << std::endl << thread[id].performanceResults << std::endl;  
+  }
+}
+
 
 }  // namespace rocksdb
 
@@ -6210,5 +6234,6 @@ int main(int argc, char** argv) {
     return 0;
   }
 
+  setenv("ROCKSDB_TESTS", "IgorTestMultithreaded", true);
   return rocksdb::test::RunAllTests();
 }
