@@ -33,6 +33,7 @@
 #pragma once
 #include <assert.h>
 #include <stdlib.h>
+#include <iostream>
 #include "util/arena.h"
 #include "port/port.h"
 #include "util/arena.h"
@@ -58,6 +59,9 @@ class SkipList {
 
   // Returns true iff an entry that compares equal to key is in the list.
   bool Contains(const Key& key) const;
+
+  // Print the contents of the skiplist.
+  void Print();
 
   // Iteration over the contents of a skip list
   class Iterator {
@@ -380,9 +384,26 @@ SkipList<Key, Comparator>::SkipList(const Comparator cmp, Arena* arena,
 }
 
 template<typename Key, class Comparator>
+void SkipList<Key, Comparator>::Print() {
+  
+  SkipList::Iterator iter(this);
+  std::cout << "Printing Skiplist***********" << std::endl;
+  
+  for (iter.SeekToFirst();iter.Valid();iter.Next()) {
+
+    std::cout << "[" << iter.key() << "]" << std::endl;
+  }
+
+  std::cout << "****************************" << std::endl;
+
+}
+
+
+template<typename Key, class Comparator>
 void SkipList<Key, Comparator>::Insert(const Key& key) {
   // TODO(opt): We can use a barrier-free variant of FindGreaterOrEqual()
   // here since Insert() is externally synchronized.
+
   Node* x = FindGreaterOrEqual(key, prev_);
 
   // Our data structure does not allow duplicate insertion

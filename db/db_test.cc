@@ -6222,6 +6222,19 @@ TEST(DBTest, IgorTestMultithreaded) {
   }
 }
 
+TEST(DBTest, IgorTestMisc) {
+  Options opts = CurrentOptions();
+  opts.statistics = CreateDBStatistics();
+  opts.write_buffer_size = 100000000;
+  opts.max_write_buffer_number = 8;
+  opts.min_write_buffer_number_to_merge = 7;
+  opts.create_if_missing = true;
+  DestroyAndReopen(&opts);
+
+  ASSERT_OK(PutNoWAL("Igor", ""));
+  ASSERT_OK(PutNoWAL("Igor", "Oana"));
+  Delete("Igor");
+}
 
 }  // namespace rocksdb
 
@@ -6234,6 +6247,6 @@ int main(int argc, char** argv) {
     return 0;
   }
 
-  setenv("ROCKSDB_TESTS", "IgorTestMultithreaded", true);
+  setenv("ROCKSDB_TESTS", "IgorTestMisc", true);
   return rocksdb::test::RunAllTests();
 }
