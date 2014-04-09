@@ -175,28 +175,28 @@ fraser_find(sl_intset_t *set, skey_t key)
   return result;
 }
 
-inline int
+int
 mark_node_ptrs(sl_node_t *n)
 {
   int i, cas = 0;
   sl_node_t *n_next;
-	
+  
   for (i = n->toplevel - 1; i >= 0; i--)
     {
       do
-      	{
-      	  n_next = n->next[i];
-      	  if (is_marked((uintptr_t)n_next))
-      	    {
-	      cas = 0;
-      	      break;
-      	    }
-	  cas = ATOMIC_CAS_MB(&n->next[i], GET_UNMARKED(n_next), set_mark((uintptr_t)n_next));
-      	} 
+        {
+          n_next = n->next[i];
+          if (is_marked((uintptr_t)n_next))
+            {
+        cas = 0;
+              break;
+            }
+    cas = ATOMIC_CAS_MB(&n->next[i], GET_UNMARKED(n_next), set_mark((uintptr_t)n_next));
+        } 
       while (!cas);
     }
 
-  return (cas);	/* if I was the one that marked lvl 0 */
+  return (cas); /* if I was the one that marked lvl 0 */
 }
 
 sval_t

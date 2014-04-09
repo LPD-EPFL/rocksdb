@@ -55,22 +55,22 @@ sl_contains(sl_intset_t *set, skey_t key)
   return result;
 }
 
-inline int
+int
 sl_seq_add(sl_intset_t *set, skey_t key, sval_t val) 
 {
   int i, l, result;
   sl_node_t *node, *next;
   sl_node_t *preds[MAXLEVEL], *succs[MAXLEVEL];
-	
+  
   node = set->head;
   for (i = node->toplevel-1; i >= 0; i--) 
     {
       next = node->next[i];
       while (next->key < key) 
-	{
-	  node = next;
-	  next = node->next[i];
-	}
+  {
+    node = next;
+    next = node->next[i];
+  }
       preds[i] = node;
       succs[i] = node->next[i];
     }
@@ -80,10 +80,10 @@ sl_seq_add(sl_intset_t *set, skey_t key, sval_t val)
       l = get_rand_level();
       node = sl_new_simple_node(key, val, l, 1);
       for (i = 0; i < l; i++) 
-	{
-	  node->next[i] = succs[i];
-	  preds[i]->next[i] = node;
-	}
+  {
+    node->next[i] = succs[i];
+    preds[i]->next[i] = node;
+  }
     }
   return result;
 }

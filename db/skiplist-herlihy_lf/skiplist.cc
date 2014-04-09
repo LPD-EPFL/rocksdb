@@ -26,22 +26,7 @@
 unsigned int levelmax;
 unsigned int size_pad_32;
 __thread ssmem_allocator_t* alloc;
-
-inline int
-get_rand_level()
-{
-  int i, level = 1;
-  for (i = 0; i < levelmax - 1; i++)
-    {
-      if ((rand_range(101)) < 50)
-  	level++;
-      else
-  	break;
-    }
-  /* 1 <= level <= levelmax */
-
-  return level;
-}
+__thread unsigned long* seeds; 
 
 int
 floor_log_2(unsigned int n)
@@ -53,6 +38,22 @@ floor_log_2(unsigned int n)
   if (n >= 1<< 2) { n >>=  2; pos +=  2; }
   if (n >= 1<< 1) {           pos +=  1; }
   return ((n == 0) ? (-1) : pos);
+}
+
+int
+get_rand_level()
+{
+  int i, level = 1;
+  for (i = 0; i < levelmax - 1; i++)
+    {
+      if ((rand_range(101)) < 50)
+    level++;
+      else
+    break;
+    }
+  /* 1 <= level <= levelmax */
+
+  return level;
 }
 
 /* 
