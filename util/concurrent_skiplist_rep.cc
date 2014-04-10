@@ -6,6 +6,7 @@
 #include "rocksdb/memtablerep.h"
 #include "db/memtable.h"
 #include "db/skiplist.h"
+#include "db/skiplist-herlihy_lf/intset.h"
 
 // ADD HERE -- IMITATE THIS
 
@@ -13,20 +14,25 @@ namespace rocksdb {
 namespace {
 class ConcurrentSkipListRep : public MemTableRep {
   SkipList<const char*, const MemTableRep::KeyComparator&> skip_list_;
+  sl_intset_t* intset;
+
 public:
   explicit ConcurrentSkipListRep(const MemTableRep::KeyComparator& compare, Arena* arena)
     : skip_list_(compare, arena) {
+      // Allocate and instantiate intset
   }
 
   // Insert key into the list.
   // REQUIRES: nothing that compares equal to key is currently in the list.
   virtual void Insert(const char* key) override {
     skip_list_.Insert(key);
+    // sl_add(intset, key, val?);
   }
 
   // Returns true iff an entry that compares equal to key is in the list.
   virtual bool Contains(const char* key) const override {
     return skip_list_.Contains(key);
+    // sl_contains(intset, skey_t key);
   }
 
   virtual size_t ApproximateMemoryUsage() override {
@@ -48,6 +54,8 @@ public:
   virtual ~ConcurrentSkipListRep() override { }
 
   // Iteration over the contents of a skip list
+
+  // ADD HERE - STUPID ITERATOR
   class Iterator : public MemTableRep::Iterator {
     SkipList<const char*, const MemTableRep::KeyComparator&>::Iterator iter_;
    public:
