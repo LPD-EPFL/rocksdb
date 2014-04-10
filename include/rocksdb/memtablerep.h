@@ -197,6 +197,18 @@ class SkipListFactory : public MemTableRepFactory {
   }
 };
 
+// ADD HERE -- FACTORY
+// This uses a concurrent skip list to store keys. It is the default.
+class ConcurrentSkipListFactory : public MemTableRepFactory {
+ public:
+  virtual MemTableRep* CreateMemTableRep(
+      const MemTableRep::KeyComparator&, Arena*,
+      const SliceTransform*) override;
+  virtual const char* Name() const override {
+    return "ConcurrentSkipListFactory";
+  }
+};
+
 // This class contains a fixed array of buckets, each
 // pointing to a skiplist (null if the bucket is empty).
 // bucket_count: number of fixed array buckets

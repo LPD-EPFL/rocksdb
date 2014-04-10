@@ -11,7 +11,7 @@
 
 #include "db/dbformat.h"
 #include "db/memtable.h"
-#include "db/skiplist.h"
+// #include "db/skiplist.h"
 #include "rocksdb/db.h"
 #include "rocksdb/db.h"
 #include "rocksdb/iterator.h"

@@ -7,6 +7,8 @@
 #include "db/memtable.h"
 #include "db/skiplist.h"
 
+// ADD HERE -- IMITATE THIS
+
 namespace rocksdb {
 namespace {
 class SkipListRep : public MemTableRep {

@@ -12,7 +12,7 @@
 #include <memory>
 #include <deque>
 #include "db/dbformat.h"
-#include "db/skiplist.h"
+// #include "db/skiplist.h"
 #include "db/version_set.h"
 #include "rocksdb/db.h"
 #include "rocksdb/memtablerep.h"
