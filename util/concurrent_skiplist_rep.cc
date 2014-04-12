@@ -25,9 +25,12 @@ public:
   // Insert key into the list.
   // REQUIRES: nothing that compares equal to key is currently in the list.
   virtual void Insert(const char* key) override {
-    skip_list_.Insert(key);
-    // sl_add(intset, key, val?);
   }
+
+  virtual void Insert(const char* key, const char* val) override {
+    //sl_add(intset, key, val);
+  }
+
 
   // Returns true iff an entry that compares equal to key is in the list.
   virtual bool Contains(const char* key) const override {

@@ -182,6 +182,9 @@ class MemTable {
   Arena arena_;
   unique_ptr<MemTableRep> table_;
 
+  //Flag used to differentiate between rocksdb memtables and ssyncbench memtables
+  bool our_memtable_;
+
   // These are used to manage memtable flushes to storage
   bool flush_in_progress_; // started the flush
   bool flush_completed_;   // finished the flush

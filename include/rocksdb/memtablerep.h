@@ -68,6 +68,8 @@ class MemTableRep {
   // collection.
   virtual void Insert(const char* key) = 0;
 
+  virtual void Insert(const char* key, const char* value) = 0;
+
   // Returns true iff an entry that compares equal to key is in the collection.
   virtual bool Contains(const char* key) const = 0;
 

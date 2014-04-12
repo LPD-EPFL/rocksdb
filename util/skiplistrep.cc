@@ -24,6 +24,8 @@ public:
     skip_list_.Insert(key);
   }
 
+  virtual void Insert(const char* key, const char* value) override {}
+
   // Returns true iff an entry that compares equal to key is in the list.
   virtual bool Contains(const char* key) const override {
     return skip_list_.Contains(key);

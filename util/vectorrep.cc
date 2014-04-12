@@ -32,6 +32,8 @@ class VectorRep : public MemTableRep {
   // collection.
   virtual void Insert(const char* key) override;
 
+  virtual void Insert(const char* key, const char* value) override;
+
   // Returns true iff an entry that compares equal to key is in the collection.
   virtual bool Contains(const char* key) const override;
 
@@ -105,6 +107,8 @@ class VectorRep : public MemTableRep {
   bool sorted_;
   const KeyComparator& compare_;
 };
+
+void VectorRep::Insert(const char* key, const char* value){}
 
 void VectorRep::Insert(const char* key) {
   assert(!Contains(key));

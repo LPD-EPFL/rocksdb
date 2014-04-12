@@ -54,6 +54,13 @@ MemTable::MemTable(const InternalKeyComparator& cmp, const Options& options)
     prefix_bloom_.reset(new DynamicBloom(options.memtable_prefix_bloom_bits,
                                          options.memtable_prefix_bloom_probes));
   }
+
+  if (strcmp(options.memtable_factory->Name(), "ConcurrentSkipListFactory") == 0){
+	  our_memtable_ = true;
+  } else{
+	  our_memtable_ = false;
+  }
+
 }
 
 MemTable::~MemTable() {
@@ -234,6 +241,13 @@ void MemTable::Add(SequenceNumber s, ValueType type,
   //  key bytes    : char[internal_key.size()]
   //  value_size   : varint32 of value.size()
   //  value bytes  : char[value.size()]
+  
+  if (our_memtable_){
+    table_ ->Insert(key.data(),value.data());
+    should_flush_ = ShouldFlushNow();
+    return;
+  }
+
   size_t key_size = key.size();
   size_t val_size = value.size();
   size_t internal_key_size = key_size + 8;
@@ -249,6 +263,7 @@ void MemTable::Add(SequenceNumber s, ValueType type,
   p = EncodeVarint32(p, val_size);
   memcpy(p, value.data(), val_size);
   assert((unsigned)(p + val_size - buf) == (unsigned)encoded_len);
+  
   table_->Insert(buf);
 
   if (prefix_bloom_) {
@@ -263,6 +278,7 @@ void MemTable::Add(SequenceNumber s, ValueType type,
   }
 
   should_flush_ = ShouldFlushNow();
+
 }
 
 // Callback from MemTable::Get()

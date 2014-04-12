@@ -27,6 +27,9 @@ class HashSkipListRep : public MemTableRep {
 
   virtual void Insert(const char* key) override;
 
+    virtual void Insert(const char* key, const char* value) override;
+
+
   virtual bool Contains(const char* key) const override;
 
   virtual size_t ApproximateMemoryUsage() override;
@@ -254,6 +257,8 @@ HashSkipListRep::Bucket* HashSkipListRep::GetInitializedBucket(
   }
   return bucket;
 }
+
+void HashSkipListRep::Insert(const char* key, const char* value){}
 
 void HashSkipListRep::Insert(const char* key) {
   assert(!Contains(key));
