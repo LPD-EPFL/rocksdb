@@ -28,7 +28,7 @@ ifndef PC_NAME
 	PC_NAME = $(shell uname -n)
 endif
 
-ifeq ($(PC_NAME), igor)
+ifeq ($(PC_NAME), ubuntu)
 	OPT += -DIGORLAPTOPLINUX
 endif
 

@@ -28,7 +28,7 @@
 sval_t
 sl_contains(sl_intset_t *set, skey_t key)
 {
-  sval_t result = 0;
+  sval_t result = nullptr;
 	
 #ifdef SEQUENTIAL /* Unprotected */
 	
@@ -39,20 +39,24 @@ sl_contains(sl_intset_t *set, skey_t key)
   for (i = node->toplevel-1; i >= 0; i--) 
     {
       next = node->next[i];
-      while (next->key < key) 
+      // while (next->key < key)
+      while (skey_compare(next->key, key) < 0) 
 	{
 	  node = next;
 	  next = node->next[i];
 	}
     }
   node = node->next[0];
-  result = (node->key == key);
-		
+  // result = (node->key == key);
+  int result_ok = (skey_compare(node->key, key) == 0);
+  result = result_ok ? node->val : nullptr;
+    
 #elif defined LOCKFREE /* fraser lock-free */
   result = fraser_find(set, key);
 #endif
-	
+
   return result;
+  
 }
 
 int
@@ -66,7 +70,8 @@ sl_seq_add(sl_intset_t *set, skey_t key, sval_t val)
   for (i = node->toplevel-1; i >= 0; i--) 
     {
       next = node->next[i];
-      while (next->key < key) 
+      // while (next->key < key) 
+      while (skey_compare(next->key, key) < 0) 
   {
     node = next;
     next = node->next[i];
@@ -75,7 +80,9 @@ sl_seq_add(sl_intset_t *set, skey_t key, sval_t val)
       succs[i] = node->next[i];
     }
   node = node->next[0];
-  if ((result = (node->key != key)) == 1)
+  // result = (node->key != key);
+  result = (skey_compare(node->key, key) != 0);
+  if (result)
     {
       l = get_rand_level();
       node = sl_new_simple_node(key, val, l, 1);
@@ -103,7 +110,7 @@ sl_add(sl_intset_t *set, skey_t key, sval_t val)
 sval_t
 sl_remove(sl_intset_t *set, skey_t key)
 {
-  sval_t result = 0;
+  sval_t result = nullptr;
 	
 #ifdef SEQUENTIAL
   int i;
@@ -114,7 +121,8 @@ sl_remove(sl_intset_t *set, skey_t key)
   for (i = node->toplevel-1; i >= 0; i--) 
     {
       next = node->next[i];
-      while (next->key < key) 
+      // while (next->key < key)
+      while (skey_compare(next->key, key) < 0)
 	{
 	  node = next;
 	  next = node->next[i];
@@ -122,10 +130,15 @@ sl_remove(sl_intset_t *set, skey_t key)
       preds[i] = node;
       succs[i] = node->next[i];
     }
-  if ((result = (next->key == key)) == 1) 
+  
+  // result = (next->key == key);
+  int result_ok = (skey_compare(next->key, key) == 0);
+  result = result_ok ? next->val : nullptr;
+  if (result_ok) 
     {
       for (i = 0; i < set->head->toplevel; i++) 
-	if (succs[i]->key == key)
+	// if (succs[i]->key == key)
+  if (skey_compare(succs[i]->key, key) == 0);
 	  preds[i]->next[i] = succs[i]->next[i];
       sl_delete_node(next); 
     }
