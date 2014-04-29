@@ -52,7 +52,7 @@ fraser_search(sl_intset_t *set, skey_t key, sl_node_t **left_list, sl_node_t **r
   for (i = levelmax - 1; i >= 0; i--)
     {
       left_next = left->next[i];
-      if (unlikely(is_marked((uintptr_t)left_next)))
+      if ((is_marked((uintptr_t)left_next)))
 	{
 	  goto retry;
 	}
@@ -61,14 +61,13 @@ fraser_search(sl_intset_t *set, skey_t key, sl_node_t **left_list, sl_node_t **r
 	{
 	  /* Skip a sequence of marked nodes */
 	  right_next = right->next[i];
-	  while (unlikely(is_marked((uintptr_t)right_next)))
+	  while ((is_marked((uintptr_t)right_next)))
 	    {
 	      right = (sl_node_t*)unset_mark((uintptr_t)right_next);
 	      right_next = right->next[i];
 	    }
 
-	  // if (right->key >= key)
-    if (skey_compare(right->key, key) >= 0)
+	  if (right->key >= key)
 	    {
 	      break;
 	    }
@@ -82,16 +81,15 @@ fraser_search(sl_intset_t *set, skey_t key, sl_node_t **left_list, sl_node_t **r
 	}
 
       if (left_list != NULL)
-	{
+      	{
 	  left_list[i] = left;
-	}
-      if (right_list != NULL)	
-	{
+      	}
+      if (right_list != NULL)
+      	{
 	  right_list[i] = right;
 	}
     }
-  // return (right->key == key);
-  return (skey_compare(right->key, key) == 0);
+  return (right->key == key);
 }
 
 int				
@@ -109,10 +107,9 @@ fraser_search_no_cleanup(sl_intset_t *set, skey_t key, sl_node_t **left_list, sl
       right = left_next;
       while (1)
 	{
-	  if (!IS_MARKED(right->next[i]))
+	  if (likely(!IS_MARKED(right->next[i])))
 	    {
-	      // if (right->key >= key)
-        if (skey_compare(right->key, key) >= 0)
+	      if (right->key >= key)
 		{
 		  break;
 		}
@@ -121,17 +118,48 @@ fraser_search_no_cleanup(sl_intset_t *set, skey_t key, sl_node_t **left_list, sl
 	  right = GET_UNMARKED(right->next[i]);
 	}
 
-      if (left_list != NULL)
-	{
+      /* if (left_list != NULL) */
+      /* 	{ */
 	  left_list[i] = left;
-	}
-      if (right_list != NULL)	
-	{
+      /* 	} */
+      /* if (right_list != NULL)	 */
+      /* 	{ */
 	  right_list[i] = right;
-	}
+	/* } */
     }
-  // return (right->key == key);
-  return (skey_compare(right->key, key) == 0);
+  return (right->key == key);
+}
+
+int				
+fraser_search_no_cleanup_succs(sl_intset_t *set, skey_t key, sl_node_t **right_list)
+{
+  PARSE_TRY();
+
+  int i;
+  sl_node_t *left, *left_next, *right = NULL;
+
+  left = set->head;
+  for (i = levelmax - 1; i >= 0; i--)
+    {
+      left_next = GET_UNMARKED(left->next[i]);
+      right = left_next;
+      while (1)
+	{
+	  if (likely(!IS_MARKED(right->next[i])))
+	    {
+	      if (right->key >= key)
+		{
+		  break;
+		}
+	      left = right;
+	    }
+	  right = GET_UNMARKED(right->next[i]);
+	}
+
+
+      right_list[i] = right;
+    }
+  return (right->key == key);
 }
 
 static sl_node_t* 
@@ -146,8 +174,7 @@ fraser_left_search(sl_intset_t *set, skey_t key)
   for (lvl = levelmax - 1; lvl >= 0; lvl--)
     {
       left = GET_UNMARKED(left_prev->next[lvl]);
-      // while(left->key < key || IS_MARKED(left->next[lvl]))
-      while (skey_compare(left->key, key) < 0 || IS_MARKED(left->next[lvl]))
+      while(left->key < key || IS_MARKED(left->next[lvl]))
       	{
       	  if (!IS_MARKED(left->next[lvl]))
       	    {
@@ -156,8 +183,7 @@ fraser_left_search(sl_intset_t *set, skey_t key)
       	  left = GET_UNMARKED(left->next[lvl]);
       	}
 
-      // if (unlikely(left->key == key))
-      if (unlikely(skey_compare(left->key, key) == 0))  
+      if ((left->key == key))
 	{
 	  break;
 	}
@@ -169,41 +195,40 @@ fraser_left_search(sl_intset_t *set, skey_t key)
 sval_t
 fraser_find(sl_intset_t *set, skey_t key)
 {
-  sval_t result = nullptr;
+  sval_t result = 0;
   PARSE_START_TS(0);
   sl_node_t* left = fraser_left_search(set, key);
   PARSE_END_TS(0, lat_parsing_get++);
 
-  // if (left->key == key)
-  if (skey_compare(left->key, key) == 0)
+  if (left->key == key)
     {
       result = left->val;
     }
   return result;
 }
 
-int
+inline int
 mark_node_ptrs(sl_node_t *n)
 {
   int i, cas = 0;
-  sl_node_t *n_next;
-  
+  sl_node_t* n_next;
+	
   for (i = n->toplevel - 1; i >= 0; i--)
     {
       do
-        {
-          n_next = n->next[i];
-          if (is_marked((uintptr_t)n_next))
-            {
-        cas = 0;
-              break;
-            }
-    cas = ATOMIC_CAS_MB(&n->next[i], GET_UNMARKED(n_next), set_mark((uintptr_t)n_next));
-        } 
+      	{
+      	  n_next = n->next[i];
+      	  if (is_marked((uintptr_t)n_next))
+      	    {
+	      cas = 0;
+      	      break;
+      	    }
+	  cas = ATOMIC_CAS_MB(&n->next[i], GET_UNMARKED(n_next), set_mark((uintptr_t)n_next));
+      	} 
       while (!cas);
     }
 
-  return (cas); /* if I was the one that marked lvl 0 */
+  return (cas);	/* if I was the one that marked lvl 0 */
 }
 
 sval_t
@@ -212,15 +237,15 @@ fraser_remove(sl_intset_t *set, skey_t key)
   UPDATE_TRY();
 
   sl_node_t* succs[FRASER_MAX_MAX_LEVEL];
-  sval_t result = nullptr;
+  sval_t result = 0;
 
   PARSE_START_TS(2);
-  int found = fraser_search_no_cleanup(set, key, NULL, succs);
+  int found = fraser_search_no_cleanup_succs(set, key, succs);
   PARSE_END_TS(2, lat_parsing_rem++);
 
   if (!found)
     {
-      return nullptr;
+      return false;
     }
 
   sl_node_t* node_del = succs[0];
@@ -241,7 +266,7 @@ fraser_remove(sl_intset_t *set, skey_t key)
 int
 fraser_insert(sl_intset_t *set, skey_t key, sval_t val) 
 {
-  sl_node_t *new_, *pred, *succ;
+  sl_node_t *new_node, *pred, *succ;
   sl_node_t *succs[FRASER_MAX_MAX_LEVEL], *preds[FRASER_MAX_MAX_LEVEL];
   int i, found;
 
@@ -259,11 +284,11 @@ fraser_insert(sl_intset_t *set, skey_t key, sval_t val)
     }
 
 
-  new_ = sl_new_simple_node(key, val, get_rand_level(), 0);
+  new_node = sl_new_simple_node(key, val, get_rand_level(), 0);
 
-  for (i = 0; i < new_->toplevel; i++)
+  for (i = 0; i < new_node->toplevel; i++)
     {
-      new_->next[i] = succs[i];
+      new_node->next[i] = succs[i];
     }
 
 #if defined(__tile__)
@@ -271,24 +296,24 @@ fraser_insert(sl_intset_t *set, skey_t key, sval_t val)
 #endif
 
   /* Node is visible once inserted at lowest level */
-  if (!ATOMIC_CAS_MB(&preds[0]->next[0], succs[0], new_))
+  if (!ATOMIC_CAS_MB(&preds[0]->next[0], GET_UNMARKED(succs[0]), new_node))
     {
-      sl_delete_node(new_);
+      sl_delete_node(new_node);
       goto retry;
     }
 
-  for (i = 1; i < new_->toplevel; i++) 
+  for (i = 1; i < new_node->toplevel; i++) 
     {
       while (1) 
 	{
 	  pred = preds[i];
 	  succ = succs[i];
-	  if (IS_MARKED(new_->next[i]))
+	  if (IS_MARKED(new_node->next[i]))
 	    {
 	      PARSE_END_INC(lat_parsing_put);
 	      return true;
 	    }
-	  if (ATOMIC_CAS_MB(&pred->next[i], succ, new_))
+	  if (ATOMIC_CAS_MB(&pred->next[i], succ, new_node))
 	    break;
 
 	  fraser_search(set, key, preds, succs);

@@ -25,6 +25,10 @@
  * atomic fo all legal alignments.
  */
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 AO_INLINE AO_t
 AO_load(const volatile AO_t *addr)
 {
@@ -44,3 +48,7 @@ AO_store(volatile AO_t *addr, AO_t new_val)
 }
 
 #define AO_HAVE_store
+
+#ifdef __cplusplus
+}
+#endif

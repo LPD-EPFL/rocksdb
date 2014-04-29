@@ -47,6 +47,10 @@
 # error Atomic_ops_generalize.h should not be included directly.
 #endif
 
+#ifdef __cplusplus
+extern "C" {
+#endif 
+
 #if AO_CHAR_TS_T
 # define AO_TS_COMPARE_AND_SWAP_FULL(a,o,n) \
          AO_char_compare_and_swap_full(a,o,n)
@@ -1352,4 +1356,8 @@ AO_double_compare_and_swap_full(volatile AO_double_t *addr,
                                                       new_val.AO_val1, new_val.AO_val2);
 }
 #define AO_HAVE_double_compare_and_swap_full
+#endif
+
+#ifdef __cplusplus
+}
 #endif

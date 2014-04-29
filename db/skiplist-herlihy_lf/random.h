@@ -1,6 +1,10 @@
 #ifndef _H_RANDOM_
 #define _H_RANDOM_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <malloc.h>
 #include "measurements.h"
 #include "ssalloc.h"
@@ -93,5 +97,8 @@ rand_range_re(unsigned int *seed, long r)
   return v;
 }
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif

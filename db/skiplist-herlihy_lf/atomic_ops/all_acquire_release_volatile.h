@@ -20,6 +20,10 @@
  * SOFTWARE. 
  */
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*
  * Describes architectures on which volatile AO_t, unsigned char, unsigned
  * short, and unsigned int loads and stores have acquire/release semantics for
@@ -166,3 +170,7 @@ AO_int_store_release(volatile unsigned int *p, unsigned int val)
   *p = val;
 }
 #define AO_HAVE_int_store_release
+
+#ifdef __cplusplus
+}
+#endif

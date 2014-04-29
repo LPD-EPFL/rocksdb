@@ -1,6 +1,10 @@
 #ifndef _BARRIER_H_
 #define _BARRIER_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* ################################################################### *
  * BARRIER
  * ################################################################### */
@@ -50,5 +54,9 @@ barrier_cross(barrier_t *b)
   }						\
     barrier_cross(barrier);			\
     }}
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif	/* _BARRIER_H_ */

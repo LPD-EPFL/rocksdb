@@ -20,6 +20,10 @@
  * SOFTWARE.
  */
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "./aligned_atomic_load_store.h"
 
 #include "./all_acquire_release_volatile.h"
@@ -294,4 +298,8 @@ AO_int_compare_and_swap_release(volatile unsigned int *addr,
 
 #ifdef _ILP32
 # include "./ao_t_is_int.h"
+#endif
+
+#ifdef __cplusplus
+}
 #endif

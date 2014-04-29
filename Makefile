@@ -32,6 +32,8 @@ ifeq ($(PC_NAME), ubuntu)
 	OPT += -DIGORLAPTOPLINUX
 endif
 
+OPT += -DLOCKFREE
+
 # ASAN doesn't work well with jemalloc. If we're compiling with ASAN, we should use regular malloc.
 ifdef COMPILE_WITH_ASAN
 	# ASAN compile flags
@@ -94,6 +96,7 @@ TESTS = \
   prefix_test \
 	simple_table_db_test \
 	skiplist_test \
+	skiplist_herlihy_test \
 	stringappend_test \
 	ttl_test \
 	backupable_db_test \
@@ -356,6 +359,9 @@ block_test: table/block_test.o $(LIBOBJECTS) $(TESTHARNESS)
 
 skiplist_test: db/skiplist_test.o $(LIBOBJECTS) $(TESTHARNESS)
 	$(CXX) db/skiplist_test.o $(LIBOBJECTS) $(TESTHARNESS) $(EXEC_LDFLAGS) -o $@ $(LDFLAGS) $(COVERAGEFLAGS)
+
+skiplist_herlihy_test: db/skiplist-herlihy_lf/skiplist_herlihy_test.o $(LIBOBJECTS) $(TESTHARNESS)
+	$(CXX) db/skiplist-herlihy_lf/skiplist_herlihy_test.o $(LIBOBJECTS) $(TESTHARNESS) $(EXEC_LDFLAGS) -o $@ $(LDFLAGS) $(COVERAGEFLAGS)
 
 version_edit_test: db/version_edit_test.o $(LIBOBJECTS) $(TESTHARNESS)
 	$(CXX) db/version_edit_test.o $(LIBOBJECTS) $(TESTHARNESS) $(EXEC_LDFLAGS) -o $@ $(LDFLAGS) $(COVERAGEFLAGS)

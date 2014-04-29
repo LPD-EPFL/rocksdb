@@ -28,6 +28,10 @@
  * We should probably add others in the future.
  */
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #if defined(AO_HAVE_compare_and_swap_full) && \
     !defined(AO_HAVE_int_compare_and_swap_full)
 #  define AO_int_compare_and_swap_full(addr, old, new_val) \
@@ -124,3 +128,7 @@
         (int)AO_fetch_and_sub1_release((volatile AO_t *)(addr))
 #  define AO_HAVE_int_fetch_and_sub1_release
 # endif
+
+#ifdef __cplusplus
+}
+#endif

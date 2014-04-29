@@ -30,7 +30,7 @@ extern "C" {
 #    define REF_SPEED_GHZ           0.7
 #  elif defined(__tilegx__)
 #    define REF_SPEED_GHZ           1.2
-#  elif defined(LAPTOP) | defined(IGORLAPTOPLINUX)
+#  elif defined(LAPTOP) | defined(IGORLAPTOPLINUX) | defined(OANALAPTOPLINUX)
 #    define REF_SPEED_GHZ           2.4
 #  elif defined(LPDPC4)
 #    define REF_SPEED_GHZ           3.5

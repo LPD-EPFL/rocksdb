@@ -2,6 +2,10 @@
 #ifndef _SSMEM_H_
 #define _SSMEM_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdio.h>
 #include <stdint.h>
 
@@ -9,8 +13,21 @@
 /* parameters */
 /* **************************************************************************************** */
 
-#define SSMEM_GC_FREE_SET_SIZE 16380
-#define SSMEM_DEFAULT_MEM_SIZE (32 * 1024 * 1024L)
+#if defined(__sparc__)
+#  define SSMEM_GC_FREE_SET_SIZE 507
+#  define SSMEM_DEFAULT_MEM_SIZE (2 * 1024 * 1024L)
+#elif defined(__tile__)
+#  define SSMEM_GC_FREE_SET_SIZE 123
+#  define SSMEM_DEFAULT_MEM_SIZE (256 * 1024L)
+#else
+#  define SSMEM_GC_FREE_SET_SIZE 507
+#  define SSMEM_DEFAULT_MEM_SIZE (256 * 1024L)
+#endif
+
+#if defined(SSMEM_GC_FREE_SET_SIZE_OVERRIDE)
+#  undef SSMEM_GC_FREE_SET_SIZE
+#  define SSMEM_GC_FREE_SET_SIZE SSMEM_GC_FREE_SET_SIZE_OVERRIDE
+#endif
 
 /* **************************************************************************************** */
 /* help definitions */
@@ -33,6 +50,7 @@ typedef struct ALIGNED(CACHE_LINE_SIZE) ssmem_allocator
       size_t mem_curr;		/* pointer to the next addrr to be allocated */
       size_t mem_size;		/* size of mem chunk */
       size_t tot_size;		/* total memory that the allocator uses */
+      size_t fs_size;		/* size (in objects) of free_sets */
       struct ssmem_list* mem_chunks; /* list of mem chunks (used to free the mem) */
 
       struct ssmem_ts* ts;	/* timestamp object associated with the allocator */
@@ -109,8 +127,10 @@ typedef struct ssmem_list
 /* ssmem interface */
 /* **************************************************************************************** */
 
-/* initialize an allocator */
+/* initialize an allocator with the default number of objects */
 void ssmem_alloc_init(ssmem_allocator_t* a, size_t size, int id);
+/* initialize an allocator and give the number of objects in free_sets */
+void ssmem_alloc_init_fs_size(ssmem_allocator_t* a, size_t size, size_t free_set_size, int id);
 /* explicitely subscribe to the list of threads in order to used timestamps for GC */
 void ssmem_gc_thread_init(ssmem_allocator_t* a, int id);
 /* terminate the system (all allocators) and free all memory */
@@ -162,6 +182,9 @@ void ssmem_all_list_print(ssmem_allocator_t* a, int id);
 #  define FAI_U32(a) arch_atomic_increment(a)
 #endif
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* _SSMEM_H_ */
 

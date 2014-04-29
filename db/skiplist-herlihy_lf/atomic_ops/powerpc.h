@@ -30,6 +30,10 @@
 /* track some of this down and correcting my misunderstandings. -HB     */
 /* Earl Chew subsequently contributed further fixes & additions.        */
 
+#ifdef __cplusplus
+extern "C" {
+#endif 
+
 #include "./aligned_atomic_load_store.h"
 
 #include "./test_and_set_t_is_ao_t.h"
@@ -343,4 +347,8 @@ AO_fetch_and_add_full(volatile AO_t *addr, AO_t incr) {
 #if defined(__powerpc64__) || defined(__ppc64__) || defined(__64BIT__)
 #else
 # include "./ao_t_is_int.h"
+#endif
+
+#ifdef __cplusplus
+}
 #endif

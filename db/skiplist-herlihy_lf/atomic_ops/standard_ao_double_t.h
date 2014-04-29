@@ -4,6 +4,10 @@
 *          to align     it on 16 byte boundary (as required by cmpxchg16.
 * Similar things could be done for PowerPC 64bit using a VMX data type...       */
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #if (defined(__x86_64__) && defined(__GNUC__)) || defined(_WIN64)
 # include <xmmintrin.h>
   typedef __m128 double_ptr_storage;
@@ -23,3 +27,7 @@ typedef union {
 #define AO_HAVE_double_t
 #define AO_val1 AO_parts.AO_v1
 #define AO_val2 AO_parts.AO_v2
+
+#ifdef __cplusplus
+}
+#endif

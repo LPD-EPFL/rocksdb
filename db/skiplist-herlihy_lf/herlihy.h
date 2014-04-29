@@ -24,9 +24,17 @@
  * GNU General Public License for more details.
  */
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "skiplist.h"
 #include "ssalloc.h"
 
 sval_t fraser_find(sl_intset_t *set, skey_t key);
 sval_t fraser_remove(sl_intset_t *set, skey_t key);
 int fraser_insert(sl_intset_t *set, skey_t key, sval_t val);
+
+#ifdef __cplusplus
+}
+#endif

@@ -16,6 +16,10 @@
  * Some of the machine specific code was borrowed from our GC distribution.
  */
 
+ #ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "./aligned_atomic_load_store.h"
 
 /* Real X86 implementations appear                                      */
@@ -179,3 +183,8 @@ AO_compare_double_and_swap_double_full(volatile AO_double_t *addr,
 #define AO_HAVE_compare_double_and_swap_double_full
 #endif /* AO_WEAK_DOUBLE_CAS_EMULATION */
 #endif /* AO_CMPXCHG16B_AVAILABLE */
+
+
+#ifdef __cplusplus
+}
+#endif

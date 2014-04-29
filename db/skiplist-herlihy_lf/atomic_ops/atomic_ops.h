@@ -24,6 +24,10 @@
 
 #define ATOMIC_OPS_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <assert.h>
 #include <stddef.h>
 
@@ -344,5 +348,9 @@
 #define AO_TS_T AO_TS_t
 #define AO_T AO_t
 #define AO_TS_VAL AO_TS_VAL_t
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* ATOMIC_OPS_H */

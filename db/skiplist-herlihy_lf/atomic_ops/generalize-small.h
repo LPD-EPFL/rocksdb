@@ -1,3 +1,7 @@
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* char_load */
 #if defined(AO_HAVE_char_load_acquire) && !defined(AO_HAVE_char_load)
 #  define AO_char_load(addr) AO_char_load_acquire(addr)
@@ -1721,4 +1725,8 @@
         AO_int_fetch_and_sub1(addr)
 #    define AO_HAVE_int_fetch_and_sub1_dd_acquire_read
 #  endif
+#endif
+
+#ifdef __cplusplus
+}
 #endif

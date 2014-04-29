@@ -15,6 +15,10 @@
  *
  */
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* FIXME.  Very incomplete.  No support for sparc64.    */
 /* Non-ancient SPARCs provide compare-and-swap (casa).  */
 /* We should make that available.                       */
@@ -70,3 +74,7 @@ AO_compare_and_swap_full(volatile AO_t *addr, AO_t old, AO_t new_val) {
 /* There are barriers like membar #LoadStore.                   */
 /* CASA (32-bit) and CASXA(64-bit) instructions were            */
 /* added in V9.                                                 */
+
+#ifdef __cplusplus
+}
+#endif

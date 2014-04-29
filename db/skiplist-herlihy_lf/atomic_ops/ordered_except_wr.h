@@ -27,6 +27,10 @@
  * except apparently for some IDT WinChips, which we ignore.
  */
 
+#ifdef __cplusplus
+extern "C" {
+#endif 
+
 #include "read_ordered.h"
 
 AO_INLINE void
@@ -98,3 +102,7 @@ AO_int_store_write(volatile unsigned int *addr, unsigned int val)
 # define AO_HAVE_int_store_release
 
 #endif /* AO_HAVE_int_store */
+
+#ifdef __cplusplus
+}
+#endif

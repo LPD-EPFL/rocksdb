@@ -26,6 +26,11 @@
  * all zeroes, and the "set" value contains only one lowest bit set.
  * This can be used if test_and_set is synthesized from compare_and_swap.
  */
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef enum {AO_TS_clear = 0, AO_TS_set = 1} AO_TS_val;
 #define AO_TS_VAL_t AO_TS_val
 #define AO_TS_CLEAR AO_TS_clear
@@ -34,3 +39,7 @@ typedef enum {AO_TS_clear = 0, AO_TS_set = 1} AO_TS_val;
 #define AO_TS_t AO_t
 
 #define AO_AO_TS_T 1
+
+#ifdef __cplusplus
+}
+#endif

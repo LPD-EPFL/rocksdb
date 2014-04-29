@@ -26,6 +26,10 @@
  * all zeroes, and the "set" value contains all ones.
  */
 
+#ifdef __cplusplus
+extern "C" {
+#endif 
+
 #define AO_TS_t unsigned char
 typedef enum {AO_BYTE_TS_clear = 0, AO_BYTE_TS_set = 0xff} AO_BYTE_TS_val;
 #define AO_TS_VAL_t AO_BYTE_TS_val
@@ -35,4 +39,6 @@ typedef enum {AO_BYTE_TS_clear = 0, AO_BYTE_TS_set = 0xff} AO_BYTE_TS_val;
 #define AO_CHAR_TS_T 1
 
 
-
+#ifdef __cplusplus
+}
+#endif

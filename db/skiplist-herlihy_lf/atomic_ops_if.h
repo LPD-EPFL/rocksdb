@@ -10,6 +10,10 @@
 #ifndef _ATOMIC_OPS_IF_H_INCLUDED_
 #define _ATOMIC_OPS_IF_H_INCLUDED_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <inttypes.h>
 
 #ifdef __sparc__
@@ -109,6 +113,8 @@ uint8_t oldval;
 #  define TAS_U8(a) arch_atomic_val_compare_and_exchange(a,0,0xff)
 //Memory barrier
 #  define MEM_BARRIER arch_atomic_full_barrier()
+#  define LOAD_BARRIER arch_atomic_read_barrier()
+#  define STORE_BARRIER arch_atomic_write_barrier()
 
 static inline void
 AO_nop_full(void)
@@ -265,7 +271,9 @@ uint8_t oldval;
 
 /* end -- generic code */
 
-
+#ifdef __cplusplus
+}
+#endif
 
 #endif
 

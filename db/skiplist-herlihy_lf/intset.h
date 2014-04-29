@@ -21,8 +21,16 @@
  * GNU General Public License for more details.
  */
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "herlihy.h"
 
 sval_t sl_contains(sl_intset_t *set, skey_t key);
 int sl_add(sl_intset_t *set, skey_t key, sval_t val);
 sval_t sl_remove(sl_intset_t *set, skey_t key);
+
+#ifdef __cplusplus
+}
+#endif

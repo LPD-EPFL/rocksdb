@@ -28,7 +28,24 @@ unsigned int size_pad_32;
 __thread ssmem_allocator_t* alloc;
 __thread unsigned long* seeds; 
 
+
 int
+get_rand_level()
+{
+  int i, level = 1;
+  for (i = 0; i < levelmax - 1; i++)
+    {
+      if ((rand_range(101)) < 50)
+  	level++;
+      else
+  	break;
+    }
+  /* 1 <= level <= levelmax */
+
+  return level;
+}
+
+inline int
 floor_log_2(unsigned int n)
 {
   int pos = 0;
@@ -38,22 +55,6 @@ floor_log_2(unsigned int n)
   if (n >= 1<< 2) { n >>=  2; pos +=  2; }
   if (n >= 1<< 1) {           pos +=  1; }
   return ((n == 0) ? (-1) : pos);
-}
-
-int
-get_rand_level()
-{
-  int i, level = 1;
-  for (i = 0; i < levelmax - 1; i++)
-    {
-      if ((rand_range(101)) < 50)
-    level++;
-      else
-    break;
-    }
-  /* 1 <= level <= levelmax */
-
-  return level;
 }
 
 /* 
@@ -149,7 +150,7 @@ sl_delete_node(sl_node_t *n)
 #if GC == 1
   ssmem_free(alloc, (void*) n);
 #else
-  //ssfree(n);
+  ssfree((void*) n);
 #endif
 }
 
@@ -165,8 +166,8 @@ sl_set_new()
       exit(1);
     }
 
-  max = sl_new_node(KEY_MAX(), nullptr, nullptr, levelmax, 1);
-  min = sl_new_node(KEY_MIN(), nullptr, max, levelmax, 1);
+  max = sl_new_node(KEY_MAX, 0, NULL, levelmax, 1);
+  min = sl_new_node(KEY_MIN, 0, max, levelmax, 1);
   set->head = min;
   return set;
 }

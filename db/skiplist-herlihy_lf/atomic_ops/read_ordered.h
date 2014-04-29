@@ -27,6 +27,10 @@
  * except apparently for some IDT WinChips, which we ignore.
  */
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 AO_INLINE void
 AO_nop_read(void)
 {
@@ -98,3 +102,7 @@ AO_int_load_read(const volatile unsigned int *addr)
 #define AO_HAVE_int_load_acquire
 
 #endif /* AO_HAVE_int_load */
+
+#ifdef __cplusplus
+}
+#endif

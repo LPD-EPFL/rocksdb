@@ -1,6 +1,11 @@
 #ifndef _SKIPLIST_H_
 #define _SKIPLIST_H_
 
+#ifdef __cplusplus
+extern "C" {
+#pragma message "cplusplus"
+#endif
+
 /*
  * File:
  *   skiplist.h
@@ -105,5 +110,9 @@ set_mark(uintptr_t i)
 #define GET_UNMARKED(p) (sl_node_t*) unset_mark((uintptr_t) (p))
 #define GET_MARKED(p) set_mark((uintptr_t) (p))
 #define IS_MARKED(p) is_marked((uintptr_t) (p))
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif	/* _SKIPLIST_H_ */

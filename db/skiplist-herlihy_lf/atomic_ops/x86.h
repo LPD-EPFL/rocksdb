@@ -16,6 +16,10 @@
  * Some of the machine specific code was borrowed from our GC distribution.
  */
 
+#ifdef __cplusplus
+extern "C" {
+#endif 
+
 /* The following really assume we have a 486 or better.  Unfortunately  */
 /* gcc doesn't define a suitable feature test macro based on command    */
 /* line options.                                                        */
@@ -171,3 +175,7 @@ AO_compare_double_and_swap_double_full(volatile AO_double_t *addr,
 #define AO_HAVE_compare_double_and_swap_double_full
 
 #include "./ao_t_is_int.h"
+
+#ifdef __cplusplus
+}
+#endif
