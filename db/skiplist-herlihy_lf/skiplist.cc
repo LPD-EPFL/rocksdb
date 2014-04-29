@@ -23,7 +23,7 @@
 
 #include "skiplist.h"	
 
-unsigned int levelmax;
+unsigned int levelmax = 3;
 unsigned int size_pad_32;
 __thread ssmem_allocator_t* alloc;
 __thread unsigned long* seeds; 
@@ -168,6 +168,8 @@ sl_set_new()
 
   max = sl_new_node(KEY_MAX, 0, NULL, levelmax, 1);
   min = sl_new_node(KEY_MIN, 0, max, levelmax, 1);
+  printf("Min address %p\n", min);
+  printf("Max address %p\n", max);
   set->head = min;
   return set;
 }

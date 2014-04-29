@@ -3,7 +3,6 @@
 
 #ifdef __cplusplus
 extern "C" {
-#pragma message "cplusplus"
 #endif
 
 /*

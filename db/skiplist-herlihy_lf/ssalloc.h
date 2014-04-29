@@ -20,6 +20,7 @@ extern "C" {
 #include <string.h>
 
 #if GC == 1			/* don't even allocate ssalloc if we have ssmem */
+#pragma message "GC is on"	
 #  define SSALLOC_USE_MALLOC
 #endif
 
