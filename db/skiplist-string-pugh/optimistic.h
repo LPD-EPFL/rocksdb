@@ -1,14 +1,17 @@
 /*
  * File:
- *   intset.h
+ *   optimistic.h
  * Author(s):
  *   Vincent Gramoli <vincent.gramoli@epfl.ch>
  * Description:
- *   Skip list integer set operations 
+ *   Fine-grained locking skip list implementation of Herlihy et al. algorithm
+ *   "A Simple Optimistic Skiplist Algorithm" 
+ *   M. Herlihy, Y. Lev, V. Luchangco, N. Shavit 
+ *   p.124-138, SIROCCO 2007
  *
  * Copyright (c) 2009-2010.
  *
- * intset.h is part of Synchrobench
+ * optimistic.h is part of Synchrobench
  * 
  * Synchrobench is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -25,11 +28,11 @@
 extern "C" {
 #endif
 
-#include "herlihy.h"
+#include "skiplist-lock.h"
 
-sval_t sl_contains(sl_intset_t *set, skey_t key);
-int sl_add(sl_intset_t *set, skey_t key, sval_t val);
-sval_t sl_remove(sl_intset_t *set, skey_t key);
+strval_t* optimistic_find(sl_intset_t *set, strkey_t key);
+int optimistic_insert(sl_intset_t *set, strkey_t key, strval_t val);
+strval_t* optimistic_delete(sl_intset_t *set, strkey_t key);
 
 #ifdef __cplusplus
 }

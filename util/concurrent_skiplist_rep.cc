@@ -6,7 +6,6 @@
 #include "rocksdb/memtablerep.h"
 #include "db/memtable.h"
 #include "db/skiplist.h"
-#include "db/skiplist-herlihy_lf/intset.h"
 
 // ADD HERE -- IMITATE THIS
 
@@ -14,7 +13,7 @@ namespace rocksdb {
 namespace {
 class ConcurrentSkipListRep : public MemTableRep {
   SkipList<const char*, const MemTableRep::KeyComparator&> skip_list_;
-  sl_intset_t* intset;
+  // sl_intset_t* intset;
 
 public:
   explicit ConcurrentSkipListRep(const MemTableRep::KeyComparator& compare, Arena* arena)
