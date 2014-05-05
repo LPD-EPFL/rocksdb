@@ -38,6 +38,10 @@
 #include "util/statistics.h"
 #include "util/testharness.h"
 #include "util/testutil.h"
+#include "db/skiplist-string-pugh/intset.h"
+
+__thread unsigned long* seeds;
+
 
 namespace rocksdb {
 
@@ -6223,6 +6227,9 @@ TEST(DBTest, IgorTestMultithreaded) {
 }
 
 TEST(DBTest, IgorTestMisc) {
+
+
+
   Options opts = CurrentOptions();
   opts.statistics = CreateDBStatistics();
   opts.write_buffer_size = 100000000;
@@ -6230,11 +6237,20 @@ TEST(DBTest, IgorTestMisc) {
   opts.min_write_buffer_number_to_merge = 7;
   opts.create_if_missing = true;
   opts.memtable_factory.reset(new ConcurrentSkipListFactory());
+  seeds = seed_rand();
+
   DestroyAndReopen(&opts);
 
+  printf("%s\n", opts.memtable_factory->Name());
+
   // ASSERT_OK(PutNoWAL("Igor", ""));
-  // ASSERT_OK(PutNoWAL("Igor", "Oana"));
-  // Delete("Igor");
+  ASSERT_OK(PutNoWAL("Igor", "Oana"));
+  ASSERT_OK(PutNoWAL("Igor", "Igor"));
+
+
+
+  Get("Igor");
+  Delete("Igor");
 }
 
 

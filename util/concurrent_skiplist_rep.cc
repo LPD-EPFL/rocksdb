@@ -6,19 +6,34 @@
 #include "rocksdb/memtablerep.h"
 #include "db/memtable.h"
 #include "db/skiplist.h"
+#include "db/skiplist-string-pugh/intset.h"
+#include <iostream>
+#include <string.h>
 
 // ADD HERE -- IMITATE THIS
+
+// extern __thread unsigned long* seeds;
+
 
 namespace rocksdb {
 namespace {
 class ConcurrentSkipListRep : public MemTableRep {
   SkipList<const char*, const MemTableRep::KeyComparator&> skip_list_;
-  // sl_intset_t* intset;
+  sl_intset_t* intset;
 
 public:
   explicit ConcurrentSkipListRep(const MemTableRep::KeyComparator& compare, Arena* arena)
     : skip_list_(compare, arena) {
       // Allocate and instantiate intset
+      levelmax = 3;
+      size_pad_32 = sizeof(sl_node_t) + (levelmax * sizeof(sl_node_t *));
+      while (size_pad_32 & 31)
+      {
+        size_pad_32++;
+      }
+
+      ssalloc_init();
+      intset = sl_set_new();
   }
 
   // Insert key into the list.
@@ -27,14 +42,29 @@ public:
   }
 
   virtual void Insert(const char* key, const char* val) override {
-    //sl_add(intset, key, val);
+
+    strkey_t k(key);
+    std::cout << "key being inserted " << key << " " << strcmp("Igor", key) << std::endl;
+    std::cout << "value being inserted " << val << " " << std::endl;
+
+
+    // if the value to be inserted is a null pointer , we interpret it as 
+    // a deletion
+    if (val == nullptr) {
+      sl_remove(intset, k);
+      return;
+    }
+    strval_t v(val);
+    sl_add(intset, k, v);
   }
 
 
   // Returns true iff an entry that compares equal to key is in the list.
   virtual bool Contains(const char* key) const override {
-    return skip_list_.Contains(key);
-    // sl_contains(intset, skey_t key);
+    // return skip_list_.Contains(key);
+    strkey_t k(key);
+
+    return (sl_contains(intset, k) != nullptr);
   }
 
   virtual size_t ApproximateMemoryUsage() override {
@@ -46,11 +76,22 @@ public:
                    bool (*callback_func)(void* arg,
                                          const char* entry)) override {
     // ConcurrentSkipListRep::Iterator iter(&skip_list_);
+
+    // TODO optimize here to avoid such a long function chain
+    strkey_t key(k.user_key().ToString().c_str());
+    strval_t* res = sl_contains(intset, key);
+    if (res != nullptr) {
+      std::cout << "FOUND: " << key.key << " - " << res->val << std::endl;
+    }
+
+    // printf("internal key %s\n", k.internal_key().ToString());
+    // printf("user key %s\n", k.user_key().data());
     // Slice dummy_slice;
     // for (iter.Seek(dummy_slice, k.memtable_key().data());
     //      iter.Valid() && callback_func(callback_args, iter.key());
     //      iter.Next()) {
     // }
+
   }
 
   virtual ~ConcurrentSkipListRep() override { }

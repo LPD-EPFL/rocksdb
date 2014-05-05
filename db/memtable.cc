@@ -243,7 +243,18 @@ void MemTable::Add(SequenceNumber s, ValueType type,
   //  value bytes  : char[value.size()]
   
   if (our_memtable_){
-    table_ ->Insert(key.data(),value.data());
+
+    char key_aux[key.size()+1];
+    strncpy(key_aux, key.data(), key.size());
+    key_aux[key.size()] = '\0';
+    
+    if (type == kTypeDeletion) {
+   
+      table_ ->Insert(key_aux,nullptr);
+    } else {
+
+      table_ ->Insert(key_aux,value.data());
+    }
     should_flush_ = ShouldFlushNow();
     return;
   }
