@@ -392,8 +392,49 @@ static bool SaveValue(void* arg, const char* entry) {
   return false;
 }
 
+static bool ProcessValue(void* arg, const char* entry){
+  // void* arg = string* value
+  // char* entry = nullptr OR an actual value
+
+  const char ** c = (const char **) arg;
+
+  *c = entry;
+
+  // std::string* s = (std::string*) arg;
+  // if (entry == nullptr) {
+  //   *s = nullptr;
+  // } else {
+  //   printf("I am here\n");
+  //   *s = std::string(entry);
+  //   printf("Oana ? %s %lu\n", (*s).c_str(), (*s).length());
+  // }
+
+  // false means that the get function should stop looking
+  return false;
+}
+
 bool MemTable::Get(const LookupKey& key, std::string* value, Status* s,
                    MergeContext& merge_context, const Options& options) {
+
+
+  if (our_memtable_){
+
+    const char * callback = nullptr;
+    table_->Get(key, &callback, ProcessValue);
+
+    if (callback == nullptr) {
+      *s = Status::NotFound();
+    } else {
+      *s = Status::OK();
+      *value = std::string(callback);
+    }
+    
+    // return true to force rocksdb not to go to disk
+    return true;
+    
+  }
+
+
   StopWatchNano memtable_get_timer(options.env, false);
   StartPerfTimer(&memtable_get_timer);
 

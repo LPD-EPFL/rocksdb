@@ -3301,7 +3301,8 @@ int64_t DBImpl::TEST_MaxNextLevelOverlappingBytes() {
 Status DBImpl::Get(const ReadOptions& options,
                    const Slice& key,
                    std::string* value) {
-  return GetImpl(options, key, value);
+  Status s = GetImpl(options, key, value);
+  return s;
 }
 
 // DeletionState gets created and destructed outside of the lock -- we
@@ -3499,6 +3500,7 @@ Status DBImpl::GetImpl(const ReadOptions& options,
   RecordTick(options_.statistics.get(), NUMBER_KEYS_READ);
   RecordTick(options_.statistics.get(), BYTES_READ, value->size());
   BumpPerfTime(&perf_context.get_post_process_time, &post_process_timer);
+
   return s;
 }
 

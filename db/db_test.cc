@@ -519,11 +519,15 @@ class DBTest {
     options.snapshot = snapshot;
     std::string result;
     Status s = db_->Get(options, k, &result);
+    printf("Status %s %d\n", s.ToString().c_str(), s.IsNotFound());
     if (s.IsNotFound()) {
+      printf("I am here\n");
       result = "NOT_FOUND";
+      printf("%s\n", result.c_str());
     } else if (!s.ok()) {
       result = s.ToString();
     }
+
     return result;
   }
 
@@ -6116,7 +6120,7 @@ TEST(DBTest, TailingIteratorPrefixSeek) {
 namespace {
 
 static const int kNumThreads = 4;
-static const int kTestSeconds = 10;
+static const int kTestSeconds = 5;
 static const int kNumKeys = 1000;
 static const int kWritePercent = 10;
 
@@ -6139,25 +6143,26 @@ static void MTThreadBodyIgor(void* arg) {
   int id = t->id;
   DB* db = t->state->test->db_;
   int writePeriod = kWritePercent != 0 ? 100/kWritePercent : 0;
+  seeds = seed_rand();
+  ssalloc_init();
 
   uintptr_t counter = 0;
 
   fprintf(stderr, "... starting thread %d\n", id);
   Random rnd(1000 + id);
   std::string value;
-  char valbuf[1500];
+  char valbuf[STRING_LENGTH];
   while (t->state->stop.Acquire_Load() == nullptr) {
     t->state->counter[id].Release_Store(reinterpret_cast<void*>(counter));
 
     int key = rnd.Uniform(kNumKeys);
-    char keybuf[20];
-    snprintf(keybuf, sizeof(keybuf), "%016d", key);
+    char keybuf[STRING_LENGTH];
+    snprintf(keybuf, sizeof(keybuf), "%d", key);
 
     if (writePeriod != 0 && rnd.OneIn(writePeriod)) {
       // Write values of the form <key, my id, counter>.
       // We add some padding for force compactions.
-      snprintf(valbuf, sizeof(valbuf), "%d.%d.%-1000d",
-               key, id, static_cast<int>(counter));
+      snprintf(valbuf, sizeof(valbuf), "%d", key);
       
       Status s = t->state->test->PutNoWAL(Slice(keybuf), Slice(valbuf));
       ASSERT_OK(s);
@@ -6184,7 +6189,14 @@ TEST(DBTest, IgorTestMultithreaded) {
   opts.max_write_buffer_number = 8;
   opts.min_write_buffer_number_to_merge = 7;
   opts.create_if_missing = true;
+
+  opts.memtable_factory.reset(new ConcurrentSkipListFactory());
+
+
+  seeds = seed_rand();
   DestroyAndReopen(&opts);
+  printf("%s\n", opts.memtable_factory->Name());
+
 
   SetPerfLevel(kEnableTime);
 
@@ -6249,8 +6261,11 @@ TEST(DBTest, IgorTestMisc) {
 
 
 
-  Get("Igor");
+  std::cout << Get("Igor") << std::endl;
   Delete("Igor");
+  std::cout << Get("Igor") << std::endl;
+  std::cout << Get("Ido") << std::endl;
+  
 }
 
 
@@ -6266,6 +6281,6 @@ int main(int argc, char** argv) {
     return 0;
   }
 
-  setenv("ROCKSDB_TESTS", "IgorTestMisc", true);
+  setenv("ROCKSDB_TESTS", "IgorTestMultithreaded", true);
   return rocksdb::test::RunAllTests();
 }

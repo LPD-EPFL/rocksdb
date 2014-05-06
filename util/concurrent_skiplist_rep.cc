@@ -44,8 +44,8 @@ public:
   virtual void Insert(const char* key, const char* val) override {
 
     strkey_t k(key);
-    std::cout << "key being inserted " << key << " " << strcmp("Igor", key) << std::endl;
-    std::cout << "value being inserted " << val << " " << std::endl;
+    // std::cout << "key being inserted " << key << " " << strcmp("Igor", key) << std::endl;
+    // std::cout << "value being inserted " << val << " " << std::endl;
 
 
     // if the value to be inserted is a null pointer , we interpret it as 
@@ -80,8 +80,14 @@ public:
     // TODO optimize here to avoid such a long function chain
     strkey_t key(k.user_key().ToString().c_str());
     strval_t* res = sl_contains(intset, key);
-    if (res != nullptr) {
-      std::cout << "FOUND: " << key.key << " - " << res->val << std::endl;
+    // if (res != nullptr) {
+    //   std::cout << "FOUND: " << key.key << " - " << res->val << std::endl;
+    // }
+
+    if (res == nullptr) {
+      callback_func(callback_args, nullptr);
+    } else {
+      callback_func(callback_args, res->val);
     }
 
     // printf("internal key %s\n", k.internal_key().ToString());
