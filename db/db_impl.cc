@@ -3370,6 +3370,26 @@ Status DBImpl::GetImpl(const ReadOptions& options,
                        bool* value_found) {
   Status s;
 
+  if(our_memtable_){
+    //std::cout<<"Get Impl our MemTable\n";
+
+    //OANA: TODO all snapshot-related things should be eventually removed 
+    SequenceNumber snapshot;
+    if (options.snapshot != nullptr) {
+      snapshot = reinterpret_cast<const SnapshotImpl*>(options.snapshot)->number_;
+    } else {
+      snapshot = versions_->LastSequence();
+    }
+    LookupKey lkey(key, snapshot);
+
+    //OANA: TODO remove merge context
+    MergeContext merge_context; //dummy merge context
+    //end TODO
+
+    mem_->Get(lkey, value, &s, merge_context, options_);
+    return s;
+  }
+
   StopWatch sw(env_, options_.statistics.get(), DB_GET, false);
   StopWatchNano snapshot_timer(env_, false);
   StartPerfTimer(&snapshot_timer);
