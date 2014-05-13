@@ -277,6 +277,8 @@ class DBImpl : public DB {
   // It is not necessary to hold the mutex when invoking this method.
   void PurgeObsoleteFiles(DeletionState& deletion_state);
 
+ bool our_memtable_;
+
  protected:
   Env* const env_;
   const std::string dbname_;

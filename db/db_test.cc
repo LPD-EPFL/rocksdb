@@ -6119,10 +6119,10 @@ TEST(DBTest, TailingIteratorPrefixSeek) {
 // Multi-threaded test:
 namespace {
 
-static const int kNumThreads = 4;
-static const int kTestSeconds = 5;
+static const int kNumThreads = 2;
+static const int kTestSeconds = 1;
 static const int kNumKeys = 1000;
-static const int kWritePercent = 10;
+static const int kWritePercent = 100;
 
 struct MTState {
   DBTest* test;
@@ -6181,6 +6181,7 @@ static void MTThreadBodyIgor(void* arg) {
 
 }  // namespace
 
+
 TEST(DBTest, IgorTestMultithreaded) {
   
   Options opts = CurrentOptions();
@@ -6191,9 +6192,12 @@ TEST(DBTest, IgorTestMultithreaded) {
   opts.create_if_missing = true;
 
   opts.memtable_factory.reset(new ConcurrentSkipListFactory());
+  //opts.prefix_extractor.reset(NewFixedPrefixTransform(2));
+  //opts.memtable_factory.reset(NewHashSkipListRepFactory());
 
 
-  seeds = seed_rand();
+
+  //seeds = seed_rand();
   DestroyAndReopen(&opts);
   printf("%s\n", opts.memtable_factory->Name());
 

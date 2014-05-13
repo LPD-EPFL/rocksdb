@@ -11,6 +11,7 @@
 
 #include <memory>
 #include <algorithm>
+#include <iostream>
 
 #include "db/dbformat.h"
 #include "db/merge_context.h"
@@ -57,8 +58,10 @@ MemTable::MemTable(const InternalKeyComparator& cmp, const Options& options)
 
   if (strcmp(options.memtable_factory->Name(), "ConcurrentSkipListFactory") == 0){
 	  our_memtable_ = true;
+    //std::cout<<"OANA: memtable.cc our memtable!\n";
   } else{
 	  our_memtable_ = false;
+    //std::cout<<"OANA: memtable.cc NOT our memtable!\n";
   }
 
 }

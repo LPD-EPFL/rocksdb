@@ -21,6 +21,7 @@
 #include <unordered_set>
 #include <utility>
 #include <vector>
+#include <iostream>
 
 #include "db/builder.h"
 #include "db/db_iter.h"
@@ -3677,6 +3678,18 @@ Status DBImpl::Write(const WriteOptions& options, WriteBatch* my_batch) {
   w.sync = options.sync;
   w.disableWAL = options.disableWAL;
   w.done = false;
+
+  if (our_memtable_){
+    //std::cout<<"OANA: Our memtable in write function\n";
+
+    Status status = WriteBatchInternal::InsertInto(w.batch, mem_, &options_, this,
+                                                options_.filter_deletes);
+    //std::cout<<"OANA: status = "<<status.ToString()<<"\n";
+    return status;
+
+  } else{
+    std::cout<<"OANA: NOT Our memtable in write function\n";
+  }
 
   StopWatch sw(env_, options_.statistics.get(), DB_WRITE, false);
   mutex_.Lock();

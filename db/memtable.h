@@ -21,12 +21,16 @@
 
 namespace rocksdb {
 
+//IGOR: Flag used to differentiate between rocksdb memtables and ssyncbench memtables
+extern bool our_memtable_;
+
 class Mutex;
 class MemTableIterator;
 class MergeContext;
 
 class MemTable {
  public:
+
   struct KeyComparator : public MemTableRep::KeyComparator {
     const InternalKeyComparator comparator;
     explicit KeyComparator(const InternalKeyComparator& c) : comparator(c) { }
@@ -56,6 +60,8 @@ class MemTable {
     }
     return nullptr;
   }
+
+
 
   // Returns an estimate of the number of bytes of data in use by this
   // data structure.
@@ -167,6 +173,8 @@ class MemTable {
 
   const Arena& TEST_GetArena() const { return arena_; }
 
+ bool our_memtable_;
+
  private:
   // Dynamically check if we can add more incoming entries.
   bool ShouldFlushNow() const;
@@ -182,8 +190,7 @@ class MemTable {
   Arena arena_;
   unique_ptr<MemTableRep> table_;
 
-  //Flag used to differentiate between rocksdb memtables and ssyncbench memtables
-  bool our_memtable_;
+
 
   // These are used to manage memtable flushes to storage
   bool flush_in_progress_; // started the flush
