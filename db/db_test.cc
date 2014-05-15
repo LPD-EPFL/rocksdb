@@ -39,6 +39,7 @@
 #include "util/testharness.h"
 #include "util/testutil.h"
 #include "db/skiplist-string-pugh/intset.h"
+#include "db/synchrobench-utils/barrier.h"
 
 __thread unsigned long* seeds;
 
@@ -6123,6 +6124,7 @@ static const int kNumThreads = 2;
 static const int kTestSeconds = 1;
 static const int kNumKeys = 1000;
 static const int kWritePercent = 100;
+static const int kInitialFill = kNumKeys/2;
 
 struct MTState {
   DBTest* test;
@@ -6134,11 +6136,14 @@ struct MTState {
 struct MTThread {
   MTState* state;
   int id;
-
+  barrier_t* barrier;
   std::string performanceResults;
 };
 
 static void MTThreadBodyIgor(void* arg) {
+
+  // INITIALIZATION
+
   MTThread* t = reinterpret_cast<MTThread*>(arg);
   int id = t->id;
   DB* db = t->state->test->db_;
@@ -6152,6 +6157,35 @@ static void MTThreadBodyIgor(void* arg) {
   Random rnd(1000 + id);
   std::string value;
   char valbuf[STRING_LENGTH];
+  Status s;
+
+  // FILLING UP THE MEMTABLE
+
+  uint32_t num_elems_thread = (uint32_t) (kInitialFill / kNumThreads);
+  int32_t missing = (uint32_t) kInitialFill - (num_elems_thread * kNumThreads);
+  if (id < missing) {
+      num_elems_thread++;
+  }
+
+  int i;
+  for(i = 0; i < num_elems_thread; i++) {
+    int key = rnd.Uniform(kNumKeys);
+    // printf("inserting key %d\n", key);
+    char keybuf[STRING_LENGTH];
+    snprintf(keybuf, sizeof(keybuf), "%d", key);
+    snprintf(valbuf, sizeof(valbuf), "%d", key);
+    s = t->state->test->PutNoWAL(Slice(keybuf), Slice(valbuf));
+    
+    if(!s.ok()) {
+      i--;
+    }
+  }
+
+  fprintf(stderr, "... crossing barrier %d\n", id);
+  barrier_cross(t->barrier);
+
+  // MAIN TEST LOOP
+
   while (t->state->stop.Acquire_Load() == nullptr) {
     t->state->counter[id].Release_Store(reinterpret_cast<void*>(counter));
 
@@ -6164,11 +6198,11 @@ static void MTThreadBodyIgor(void* arg) {
       // We add some padding for force compactions.
       snprintf(valbuf, sizeof(valbuf), "%d", key);
       
-      Status s = t->state->test->PutNoWAL(Slice(keybuf), Slice(valbuf));
+      s = t->state->test->PutNoWAL(Slice(keybuf), Slice(valbuf));
       ASSERT_OK(s);
     } else {
       // Read a value and verify that it matches the pattern written above.
-      Status s = db->Get(ReadOptions(), Slice(keybuf), &value);
+      s = db->Get(ReadOptions(), Slice(keybuf), &value);
     }
     counter++;
   }
@@ -6205,6 +6239,8 @@ TEST(DBTest, IgorTestMultithreaded) {
   SetPerfLevel(kEnableTime);
 
 
+  barrier_t barrier;
+  barrier_init(&barrier, kNumThreads + 1);
   MTState mt;
   mt.test = this;
   mt.stop.Release_Store(0);
@@ -6218,8 +6254,11 @@ TEST(DBTest, IgorTestMultithreaded) {
   for (int id = 0; id < kNumThreads; id++) {
     thread[id].state = &mt;
     thread[id].id = id;
+    thread[id].barrier = &barrier;
     env_->StartThread(MTThreadBodyIgor, &thread[id]);
   }
+
+  barrier_cross(&barrier);
 
   // Let them run for a while
   env_->SleepForMicroseconds(kTestSeconds * 1000000);
