@@ -33,6 +33,11 @@ ifeq ($(PC_NAME), ubuntu)
 	LOCK = TAS
 endif
 
+ifeq ($(PC_NAME), lpdxeon2680)
+	OPT += -DLPDXEON
+	LOCK = TAS
+endif
+
 OPT += -D$(LOCK)
 
 # ASAN doesn't work well with jemalloc. If we're compiling with ASAN, we should use regular malloc.
@@ -48,7 +53,7 @@ else
 	PLATFORM_CCFLAGS += $(JEMALLOC_INCLUDE) -DHAVE_JEMALLOC
 endif
 
-WARNING_FLAGS = -Wall -Werror -Wno-sign-compare
+WARNING_FLAGS = -Wall -Wno-sign-compare
 CFLAGS += -g $(WARNING_FLAGS) -I. -I./include $(PLATFORM_CCFLAGS) $(OPT)
 CXXFLAGS += -g $(WARNING_FLAGS) -I. -I./include $(PLATFORM_CXXFLAGS) $(OPT) -Woverloaded-virtual
 
