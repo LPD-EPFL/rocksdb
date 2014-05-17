@@ -8,7 +8,7 @@ INSTALL_PATH ?= $(CURDIR)
 #-----------------------------------------------
 
 ifneq ($(MAKECMDGOALS),dbg)
-OPT += -O2 -fno-omit-frame-pointer -momit-leaf-frame-pointer
+OPT += -O2 -fno-omit-frame-pointer -momit-leaf-frame-pointer -fno-strict-aliasing
 else
 # intentionally left blank
 endif
