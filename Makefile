@@ -33,6 +33,11 @@ ifeq ($(PC_NAME), ubuntu)
 	LOCK = TAS
 endif
 
+ifeq ($(PC_NAME), lpdxeon2680)
+	OPT += -DIGORLAPTOPLINUX
+	LOCK = TAS
+endif
+
 OPT += -D$(LOCK)
 
 # ASAN doesn't work well with jemalloc. If we're compiling with ASAN, we should use regular malloc.
