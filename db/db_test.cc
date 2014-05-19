@@ -6173,6 +6173,7 @@ static void MTThreadBodyIgor(void* arg) {
     // printf("inserting key %d\n", key);
     char keybuf[STRING_LENGTH];
     snprintf(keybuf, sizeof(keybuf), "%d", key);
+
     snprintf(valbuf, sizeof(valbuf), "%d", key);
     s = t->state->test->PutNoWAL(Slice(keybuf), Slice(valbuf));
     
@@ -6186,6 +6187,7 @@ static void MTThreadBodyIgor(void* arg) {
 
   // MAIN TEST LOOP
 
+  bool write = true;
   while (t->state->stop.Acquire_Load() == nullptr) {
     t->state->counter[id].Release_Store(reinterpret_cast<void*>(counter));
 
@@ -6196,10 +6198,17 @@ static void MTThreadBodyIgor(void* arg) {
     if (writePeriod != 0 && rnd.OneIn(writePeriod)) {
       // Write values of the form <key, my id, counter>.
       // We add some padding for force compactions.
-      snprintf(valbuf, sizeof(valbuf), "%d", key);
+
+      if (write) {
+        snprintf(valbuf, sizeof(valbuf), "%d", key);
+        s = t->state->test->PutNoWAL(Slice(keybuf), Slice(valbuf));
+
+      } else {
+        s = t->state->test->Delete(keybuf);
+      }
       
-      s = t->state->test->PutNoWAL(Slice(keybuf), Slice(valbuf));
       ASSERT_OK(s);
+      write = !write;
     } else {
       // Read a value and verify that it matches the pattern written above.
       s = db->Get(ReadOptions(), Slice(keybuf), &value);
