@@ -6120,7 +6120,7 @@ TEST(DBTest, TailingIteratorPrefixSeek) {
 // Multi-threaded test:
 namespace {
 
-static const int kNumThreads = 2;
+static const int kNumThreads = 1;
 static const int kTestSeconds = 1;
 static const int kNumKeys = 1000;
 static const int kWritePercent = 100;

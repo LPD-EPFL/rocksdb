@@ -94,7 +94,7 @@ struct strval_t {
 #define ALT_KEY_MIN						INT64_MIN
 #define ALT_KEY_MAX						INT64_MAX
 
-inline int strkey_compare(strkey_t k1, strkey_t k2) {
+inline int strkey_compare_old(strkey_t k1, strkey_t k2) {
 
 	//TODO write our own strcmp
 	if ( strcmp(k1.key, k2.key) == 0) return 0;
@@ -108,7 +108,7 @@ inline int strkey_compare(strkey_t k1, strkey_t k2) {
 	return strcmp(k1.key, k2.key);
 }
 
-inline int64_t strkey_compare_haxxorz(strkey_t k1, strkey_t k2) {
+inline int64_t strkey_compare(strkey_t k1, strkey_t k2) {
 	return *(int64_t *)(k1.key) - *(int64_t *)(k2.key);
 }
 

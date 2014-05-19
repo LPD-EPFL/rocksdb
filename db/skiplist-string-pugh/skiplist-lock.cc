@@ -138,8 +138,11 @@ sl_set_new()
       exit(1);
     }
 
-  strkey_t key_max = {STR_KEY_MAX};
-  strkey_t key_min = {STR_KEY_MIN};
+  int64_t m = ALT_KEY_MIN;
+  int64_t M = ALT_KEY_MAX;
+  strkey_t key_min, key_max;
+  int64_to_char8(key_min.key, m);
+  int64_to_char8(key_max.key, M);
 
   strval_t val_0 = {""};
 
