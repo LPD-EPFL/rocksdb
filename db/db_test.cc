@@ -6120,10 +6120,10 @@ TEST(DBTest, TailingIteratorPrefixSeek) {
 // Multi-threaded test:
 namespace {
 
-static const int kNumThreads = 1;
+static const int kNumThreads = 2;
 static const int kTestSeconds = 1;
 static const int kNumKeys = 1000;
-static const int kWritePercent = 100;
+static const int kWritePercent = 10;
 static const int kInitialFill = kNumKeys/2;
 
 struct MTState {
@@ -6150,8 +6150,6 @@ static void MTThreadBodyIgor(void* arg) {
   int writePeriod = kWritePercent != 0 ? 100/kWritePercent : 0;
   seeds = seed_rand();
   ssalloc_init();
-
-  uintptr_t counter = 0;
 
   fprintf(stderr, "... starting thread %d\n", id);
   Random rnd(1000 + id);
@@ -6188,6 +6186,8 @@ static void MTThreadBodyIgor(void* arg) {
   // MAIN TEST LOOP
 
   bool write = true;
+  uint64_t counter = 0;
+  uint64_t writeCount = 0, deleteCount = 0, getCount = 0;
   while (t->state->stop.Acquire_Load() == nullptr) {
     t->state->counter[id].Release_Store(reinterpret_cast<void*>(counter));
 
@@ -6202,9 +6202,10 @@ static void MTThreadBodyIgor(void* arg) {
       if (write) {
         snprintf(valbuf, sizeof(valbuf), "%d", key);
         s = t->state->test->PutNoWAL(Slice(keybuf), Slice(valbuf));
-
+        writeCount++;
       } else {
         s = t->state->test->Delete(keybuf);
+        deleteCount++;
       }
       
       ASSERT_OK(s);
@@ -6212,11 +6213,12 @@ static void MTThreadBodyIgor(void* arg) {
     } else {
       // Read a value and verify that it matches the pattern written above.
       s = db->Get(ReadOptions(), Slice(keybuf), &value);
+      getCount++;
     }
     counter++;
   }
   t->state->thread_done[id].Release_Store(t);
-  fprintf(stderr, "... stopping thread %d after %d ops\n", id, int(counter));
+  fprintf(stderr, "... stopping thread %d after %d ops: %lu writes, %lu deletes, %lu gets\n", id, int(counter), writeCount, deleteCount, getCount);
   
   
   t->performanceResults = perf_context.ToString();
