@@ -6226,7 +6226,7 @@ static void MTThreadBodyIgor(void* arg) {
     counter++;
   }
   t->state->thread_done[id].Release_Store(t);
-  fprintf(stderr, "... stopping thread %d after %d ops: %llu writes, %llu deletes, %llu gets\n", id, int(counter), writeCount, deleteCount, getCount);
+  printf("... stopping thread %d after %d ops: %llu writes, %llu deletes, %llu gets\n", id, int(counter), writeCount, deleteCount, getCount);
   
   
   t->performanceResults = perf_context.ToString();
@@ -6356,6 +6356,8 @@ int main(int argc, char** argv) {
     {NULL, 0, NULL, 0}
   };
 
+
+  printf("Options ");
  int i, c;
   while(1) 
     {
@@ -6395,19 +6397,19 @@ int main(int argc, char** argv) {
     exit(0);
   case 'd':
      rocksdb::kTestSeconds = atoi(optarg);
-     printf("Detect d %d\n", rocksdb::kTestSeconds);
+     printf("Duration(s) %d ", rocksdb::kTestSeconds);
     break;
   case 'i':
      rocksdb::kNumKeys = atoi(optarg);
-     printf("Detect i %d\n", rocksdb::kNumKeys);
+     printf("NumKeys %d ", rocksdb::kNumKeys);
     break;
   case 'n':
     rocksdb::kNumThreads = atoi(optarg);
-    printf("Detect n %d\n", rocksdb::kNumKeys);
+    printf("NumThreads %d ", rocksdb::kNumThreads);
     break;
   case 'u':
     rocksdb::kWritePercent = atoi(optarg);
-    printf("Detect u %d\n", rocksdb::kWritePercent);
+    printf("Updates %d ", rocksdb::kWritePercent);
     break;
   case '?':
   default:
@@ -6415,6 +6417,7 @@ int main(int argc, char** argv) {
     exit(1);
   }
     }
+  printf("\n");
 
 
   setenv("ROCKSDB_TESTS", "IgorTestMultithreaded", true);
