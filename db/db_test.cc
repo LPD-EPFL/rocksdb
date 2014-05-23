@@ -6186,6 +6186,9 @@ static void MTThreadBodyIgor(void* arg) {
 
   // MAIN TEST LOOP
 
+    bool write = true;
+  uint64_t counter = 0;
+  uint64_t writeCount = 0, deleteCount = 0, getCount = 0;
   while (t->state->stop.Acquire_Load() == nullptr) {
     t->state->counter[id].Release_Store(reinterpret_cast<void*>(counter));
 
@@ -6196,18 +6199,27 @@ static void MTThreadBodyIgor(void* arg) {
     if (writePeriod != 0 && rnd.OneIn(writePeriod)) {
       // Write values of the form <key, my id, counter>.
       // We add some padding for force compactions.
-      snprintf(valbuf, sizeof(valbuf), "%d", key);
+
+      if (write) {
+        snprintf(valbuf, sizeof(valbuf), "%d", key);
+        s = t->state->test->PutNoWAL(Slice(keybuf), Slice(valbuf));
+        writeCount++;
+      } else {
+        s = t->state->test->Delete(keybuf);
+        deleteCount++;
+      }
       
-      s = t->state->test->PutNoWAL(Slice(keybuf), Slice(valbuf));
       ASSERT_OK(s);
+      write = !write;
     } else {
       // Read a value and verify that it matches the pattern written above.
       s = db->Get(ReadOptions(), Slice(keybuf), &value);
+      getCount++;
     }
     counter++;
   }
   t->state->thread_done[id].Release_Store(t);
-  fprintf(stderr, "... stopping thread %d after %d ops\n", id, int(counter));
+  printf("... stopping thread %d after %d ops: %llu writes, %llu deletes, %llu gets\n", id, int(counter), writeCount, deleteCount, getCount);
   
   
   t->performanceResults = perf_context.ToString();
