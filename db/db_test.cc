@@ -6151,8 +6151,6 @@ static void MTThreadBodyIgor(void* arg) {
   seeds = seed_rand();
   ssalloc_init();
 
-  uintptr_t counter = 0;
-
   fprintf(stderr, "... starting thread %d\n", id);
   Random rnd(1000 + id);
   std::string value;
