@@ -6118,19 +6118,27 @@ TEST(DBTest, TailingIteratorPrefixSeek) {
 }
 
 // Multi-threaded test:
-namespace {
 
-static const int kNumThreads = 2;
-static const int kTestSeconds = 1;
-static const int kNumKeys = 1000;
-static const int kWritePercent = 10;
-static const int kInitialFill = kNumKeys/2;
+/*static  int num_t = 2;
+static  int duration = 1;
+static  int num_keys = 1000;
+static  int write_percent = 10;
+*/
+
+//namespace {
+
+static  int kNumThreads = 1;
+static  int kTestSeconds = 1;
+static  int kNumKeys = 1024;
+static  int kWritePercent = 10;
+static  int kInitialFill = kNumKeys/2;
+static const int kMaxThreads = 100;
 
 struct MTState {
   DBTest* test;
   port::AtomicPointer stop;
-  port::AtomicPointer counter[kNumThreads];
-  port::AtomicPointer thread_done[kNumThreads];
+  port::AtomicPointer counter[kMaxThreads];
+  port::AtomicPointer thread_done[kMaxThreads];
 };
 
 struct MTThread {
@@ -6218,13 +6226,13 @@ static void MTThreadBodyIgor(void* arg) {
     counter++;
   }
   t->state->thread_done[id].Release_Store(t);
-  fprintf(stderr, "... stopping thread %d after %d ops: %lu writes, %lu deletes, %lu gets\n", id, int(counter), writeCount, deleteCount, getCount);
+  fprintf(stderr, "... stopping thread %d after %d ops: %llu writes, %llu deletes, %llu gets\n", id, int(counter), writeCount, deleteCount, getCount);
   
   
   t->performanceResults = perf_context.ToString();
 }
 
-}  // namespace
+//}  // namespace
 
 
 TEST(DBTest, IgorTestMultithreaded) {
@@ -6334,6 +6342,80 @@ int main(int argc, char** argv) {
     rocksdb::BM_LogAndApply(100, 100000);
     return 0;
   }
+
+
+  //To read arguments from the command line
+  struct option long_options[] = {
+    // These options don't set a flag
+    {"help",                      no_argument,       NULL, 'h'},
+    {"duration",                  required_argument, NULL, 'd'},
+    {"initial-size",              required_argument, NULL, 'i'},
+    {"num-threads",               required_argument, NULL, 'n'},
+    {"update-rate",               required_argument, NULL, 'u'},
+
+    {NULL, 0, NULL, 0}
+  };
+
+ int i, c;
+  while(1) 
+    {
+      i = 0;
+      c = getopt_long(argc, argv, "hAf:d:i:n:u:", long_options, &i);
+
+      if(c == -1)
+  break;
+
+      if(c == 0 && long_options[i].flag == 0)
+  c = long_options[i].val;
+
+      switch(c) 
+  {
+  case 0:
+    /* Flag is automatically set */
+    break;
+  case 'h':
+    printf("intset -- STM stress test "
+     "(linked list)\n"
+     "\n"
+     "Usage:\n"
+     "  intset [options...]\n"
+     "\n"
+     "Options:\n"
+     "  -h, --help\n"
+     "        Print this message\n"
+     "  -d, --duration <int>\n"
+     "        Test duration in seconds\n"
+     "  -i, --initial-size <int>\n"
+     "        Number of elements to insert before test\n"
+     "  -n, --num-threads <int>\n"
+     "        Number of threads\n"
+     "  -u, --update-rate <int>\n"
+     "        Percentage of update transactions\n"
+     );
+    exit(0);
+  case 'd':
+     rocksdb::kTestSeconds = atoi(optarg);
+     printf("Detect d %d\n", rocksdb::kTestSeconds);
+    break;
+  case 'i':
+     rocksdb::kNumKeys = atoi(optarg);
+     printf("Detect i %d\n", rocksdb::kNumKeys);
+    break;
+  case 'n':
+    rocksdb::kNumThreads = atoi(optarg);
+    printf("Detect n %d\n", rocksdb::kNumKeys);
+    break;
+  case 'u':
+    rocksdb::kWritePercent = atoi(optarg);
+    printf("Detect u %d\n", rocksdb::kWritePercent);
+    break;
+  case '?':
+  default:
+    printf("Use -h or --help for help\n");
+    exit(1);
+  }
+    }
+
 
   setenv("ROCKSDB_TESTS", "IgorTestMultithreaded", true);
   return rocksdb::test::RunAllTests();
