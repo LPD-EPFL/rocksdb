@@ -31,6 +31,16 @@
 
 namespace rocksdb {
 
+//OANA: variables for the Concurrent Skiplist implementation
+static const int kMaxThreads = 100;
+//TODO: align and pad these arrays 
+static int num_inserts[kMaxThreads];
+static int num_deletes[kMaxThreads];
+static int ongoing[kMaxThreads];
+//TODO: define a lock for our skiplist
+
+//END OANA
+
 class MemTable;
 class TableCache;
 class Version;

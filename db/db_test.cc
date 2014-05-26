@@ -6132,7 +6132,6 @@ static  int kTestSeconds = 1;
 static  int kNumKeys = 1024;
 static  int kWritePercent = 10;
 static  int kInitialFill = kNumKeys/2;
-static const int kMaxThreads = 100;
 
 struct MTState {
   DBTest* test;
@@ -6208,12 +6207,25 @@ static void MTThreadBodyIgor(void* arg) {
       // We add some padding for force compactions.
 
       if (write) {
+
+        //if GL is not taken; if GL is taken wait??
+        rocksdb::ongoing[id] = 1;
         snprintf(valbuf, sizeof(valbuf), "%d", key);
         s = t->state->test->PutNoWAL(Slice(keybuf), Slice(valbuf));
         writeCount++;
+        //TODO increment only if the change was successful
+        rocksdb::num_inserts[id]+=1;
+        rocksdb::ongoing[id] = 0;
+
       } else {
+        //if GL is not taken; if GL is taken wait??
+        rocksdb::ongoing[id] = 1;
         s = t->state->test->Delete(keybuf);
         deleteCount++;
+        //TODO increment only if the change was successful
+        
+        rocksdb::num_deletes[id]+=1;
+        rocksdb::ongoing[id] = 0;
       }
       
       ASSERT_OK(s);

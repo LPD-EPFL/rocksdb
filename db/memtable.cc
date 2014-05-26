@@ -12,7 +12,10 @@
 #include <memory>
 #include <algorithm>
 #include <iostream>
+#include <unistd.h>
+#include <ctime>
 
+#include "db/db_impl.h"
 #include "db/dbformat.h"
 #include "db/merge_context.h"
 #include "rocksdb/comparator.h"
@@ -29,6 +32,8 @@
 #include "util/stop_watch.h"
 
 namespace rocksdb {
+
+static void MTThreadBodyBackground(void* arg);  
 
 MemTable::MemTable(const InternalKeyComparator& cmp, const Options& options)
     : comparator_(cmp),
@@ -58,6 +63,9 @@ MemTable::MemTable(const InternalKeyComparator& cmp, const Options& options)
 
   if (strcmp(options.memtable_factory->Name(), "ConcurrentSkipListFactory") == 0){
 	  our_memtable_ = true;
+    //START BG thread
+    options.env->StartThread(MTThreadBodyBackground, nullptr);
+
     //std::cout<<"OANA: memtable.cc our memtable!\n";
   } else{
 	  our_memtable_ = false;
@@ -65,6 +73,18 @@ MemTable::MemTable(const InternalKeyComparator& cmp, const Options& options)
   }
 
 }
+
+//BG thread Body
+static void MTThreadBodyBackground(void* arg) {
+
+while(true){
+  printf("%d: Hello :)\n", time(0)*1000);
+  usleep(1000000);
+
+}
+
+}
+
 
 MemTable::~MemTable() {
   assert(refs_ == 0);
