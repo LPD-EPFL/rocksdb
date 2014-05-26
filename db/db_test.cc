@@ -6211,7 +6211,9 @@ static void MTThreadBodyIgor(void* arg) {
         //if GL is not taken; if GL is taken wait??
         rocksdb::ongoing[id] = 1;
         snprintf(valbuf, sizeof(valbuf), "%d", key);
+        //bgThreadMutex.ReadLock();
         s = t->state->test->PutNoWAL(Slice(keybuf), Slice(valbuf));
+        //bgThreadMutex.Unlock();
         writeCount++;
         //TODO increment only if the change was successful
         rocksdb::num_inserts[id]+=1;
@@ -6342,6 +6344,22 @@ TEST(DBTest, IgorTestMisc) {
   
 }
 
+TEST(DBTest, SleepTest) {
+  Options opts = CurrentOptions();
+  opts.statistics = CreateDBStatistics();
+  opts.write_buffer_size = 100000000;
+  opts.max_write_buffer_number = 8;
+  opts.min_write_buffer_number_to_merge = 7;
+  opts.create_if_missing = true;
+  opts.memtable_factory.reset(new ConcurrentSkipListFactory());
+  seeds = seed_rand();
+
+  DestroyAndReopen(&opts);
+
+  printf("%s\n", opts.memtable_factory->Name());
+
+  usleep(5000001);
+}
 
 
 }  // namespace rocksdb
@@ -6432,6 +6450,6 @@ int main(int argc, char** argv) {
   printf("\n");
 
 
-  setenv("ROCKSDB_TESTS", "IgorTestMultithreaded", true);
+  setenv("ROCKSDB_TESTS", "SleepTest", true);
   return rocksdb::test::RunAllTests();
 }

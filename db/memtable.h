@@ -18,15 +18,21 @@
 #include "rocksdb/memtablerep.h"
 #include "util/arena.h"
 #include "util/dynamic_bloom.h"
+#include "port/port.h"
 
 namespace rocksdb {
 
 //IGOR: Flag used to differentiate between rocksdb memtables and ssyncbench memtables
 extern bool our_memtable_;
+extern port::RWMutex bgThreadMutex;
+//port::RWMutex bgThreadMutex;
+
 
 class Mutex;
 class MemTableIterator;
 class MergeContext;
+
+
 
 class MemTable {
  public:
@@ -175,6 +181,7 @@ class MemTable {
 
  bool our_memtable_;
 
+
  private:
   // Dynamically check if we can add more incoming entries.
   bool ShouldFlushNow() const;
@@ -223,6 +230,7 @@ class MemTable {
 
   // a flag indicating if a memtable has met the criteria to flush
   bool should_flush_;
+
 };
 
 extern const char* EncodeKey(std::string* scratch, const Slice& target);

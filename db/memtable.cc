@@ -33,7 +33,19 @@
 
 namespace rocksdb {
 
-static void MTThreadBodyBackground(void* arg);  
+static bool stopBGThread;  
+
+//BG thread Body
+static void MTThreadBodyBackground(void* arg) {
+
+  while(!stopBGThread){
+    printf("%d: Hello :)\n", time(0)*1000);
+    usleep(1000000);
+    bgThreadMutex.WriteLock();
+    printf("Let's see how much you guys have written\n");
+    bgThreadMutex.Unlock();
+  }
+}
 
 MemTable::MemTable(const InternalKeyComparator& cmp, const Options& options)
     : comparator_(cmp),
@@ -64,7 +76,11 @@ MemTable::MemTable(const InternalKeyComparator& cmp, const Options& options)
   if (strcmp(options.memtable_factory->Name(), "ConcurrentSkipListFactory") == 0){
 	  our_memtable_ = true;
     //START BG thread
+    // bgThreadMutex = port::RWMutex();
+    stopBGThread = false;
+    port::RWMutex bgThreadMutex;
     options.env->StartThread(MTThreadBodyBackground, nullptr);
+
 
     //std::cout<<"OANA: memtable.cc our memtable!\n";
   } else{
@@ -74,20 +90,14 @@ MemTable::MemTable(const InternalKeyComparator& cmp, const Options& options)
 
 }
 
-//BG thread Body
-static void MTThreadBodyBackground(void* arg) {
-
-while(true){
-  printf("%d: Hello :)\n", time(0)*1000);
-  usleep(1000000);
-
-}
-
+static void writeToDisk() {
+  // lock must be held here;
 }
 
 
 MemTable::~MemTable() {
   assert(refs_ == 0);
+  stopBGThread = true;
 }
 
 size_t MemTable::ApproximateMemoryUsage() {
