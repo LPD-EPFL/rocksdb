@@ -6127,7 +6127,7 @@ static  int write_percent = 10;
 
 //namespace {
 
-static  int kNumThreads = 1;
+int kNumThreads = 1;
 static  int kTestSeconds = 1;
 static  int kNumKeys = 1024;
 static  int kWritePercent = 10;
@@ -6212,6 +6212,7 @@ static void MTThreadBodyIgor(void* arg) {
       rocksdb::ongoing[id].flag = 1;
       if(rocksdb::bgWriteFlag){
         rocksdb::ongoing[id].flag = 0;
+        printf("goto restart thread %d\n", id);
         goto restart;
       }
 
@@ -6312,6 +6313,9 @@ TEST(DBTest, IgorTestMultithreaded) {
 
     std::cout << "***Thread " << id << "***" << std::endl << thread[id].performanceResults << std::endl;  
   }
+
+  rocksdb::stopBGThread = true;
+
 }
 
 TEST(DBTest, IgorTestMisc) {

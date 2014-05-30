@@ -34,7 +34,7 @@
 
 namespace rocksdb {
 
-static bool stopBGThread;  
+bool stopBGThread;  
 bool bgWriteFlag;
 
 //BG thread Body
@@ -42,7 +42,7 @@ static void MTThreadBodyBackground(void* arg) {
 
   while(!stopBGThread){
     //printf("%d: Hello :)\n", time(0)*1000);
-    usleep(1000000);
+    usleep(2000000);
     bgWriteFlag = true;
     for (int i=0; i < rocksdb::kNumThreads; i++){
       while(rocksdb::ongoing[i].flag == 1){}

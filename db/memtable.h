@@ -25,6 +25,7 @@ namespace rocksdb {
 //IGOR: Flag used to differentiate between rocksdb memtables and ssyncbench memtables
 extern bool our_memtable_;
 extern bool bgWriteFlag;
+extern bool stopBGThread;
 extern int kNumThreads;
 
 
