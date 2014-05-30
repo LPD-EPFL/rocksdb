@@ -6206,30 +6206,30 @@ static void MTThreadBodyIgor(void* arg) {
       // Write values of the form <key, my id, counter>.
       // We add some padding for force compactions.
 
-      if (write) {
+      //if GL is not taken, continue; if GL is taken wait
+      restart:
+      while (rocksdb::bgWriteFlag){}
+      rocksdb::ongoing[id].flag = 1;
+      if(rocksdb::bgWriteFlag){
+        rocksdb::ongoing[id].flag = 0;
+        goto restart;
+      }
 
-        //if GL is not taken; if GL is taken wait??
-        rocksdb::ongoing[id] = 1;
-        snprintf(valbuf, sizeof(valbuf), "%d", key);
-        //bgThreadMutex.ReadLock();
+      if (write) {
+        snprintf(valbuf, sizeof(valbuf), "%d", key);        
         s = t->state->test->PutNoWAL(Slice(keybuf), Slice(valbuf));
-        //bgThreadMutex.Unlock();
         writeCount++;
         //TODO increment only if the change was successful
-        rocksdb::num_inserts[id]+=1;
-        rocksdb::ongoing[id] = 0;
+        rocksdb::num_inserts[id].flag += 1;
 
       } else {
-        //if GL is not taken; if GL is taken wait??
-        rocksdb::ongoing[id] = 1;
         s = t->state->test->Delete(keybuf);
         deleteCount++;
-        //TODO increment only if the change was successful
-        
-        rocksdb::num_deletes[id]+=1;
-        rocksdb::ongoing[id] = 0;
+        //TODO increment only if the change was successful      
+        rocksdb::num_deletes[id].flag += 1;
       }
-      
+
+      rocksdb::ongoing[id].flag = 0;
       ASSERT_OK(s);
       write = !write;
     } else {
@@ -6359,6 +6359,8 @@ TEST(DBTest, SleepTest) {
   printf("%s\n", opts.memtable_factory->Name());
 
   usleep(5000001);
+
+
 }
 
 
@@ -6449,7 +6451,6 @@ int main(int argc, char** argv) {
     }
   printf("\n");
 
-
-  setenv("ROCKSDB_TESTS", "SleepTest", true);
+  setenv("ROCKSDB_TESTS", "IgorTestMultithreaded", true);
   return rocksdb::test::RunAllTests();
 }

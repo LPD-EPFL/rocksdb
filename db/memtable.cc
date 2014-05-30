@@ -17,6 +17,7 @@
 
 #include "db/db_impl.h"
 #include "db/dbformat.h"
+#include "db/memtable.h"
 #include "db/merge_context.h"
 #include "rocksdb/comparator.h"
 #include "rocksdb/env.h"
@@ -34,16 +35,21 @@
 namespace rocksdb {
 
 static bool stopBGThread;  
+bool bgWriteFlag;
 
 //BG thread Body
 static void MTThreadBodyBackground(void* arg) {
 
   while(!stopBGThread){
-    printf("%d: Hello :)\n", time(0)*1000);
+    //printf("%d: Hello :)\n", time(0)*1000);
     usleep(1000000);
-    bgThreadMutex.WriteLock();
+    bgWriteFlag = true;
+    for (int i=0; i < rocksdb::kNumThreads; i++){
+      while(rocksdb::ongoing[i].flag == 1){}
+    }
     printf("Let's see how much you guys have written\n");
-    bgThreadMutex.Unlock();
+    //TODO: Check total # of updates and if necessary write to disk;
+    bgWriteFlag = false;
   }
 }
 
@@ -78,13 +84,15 @@ MemTable::MemTable(const InternalKeyComparator& cmp, const Options& options)
     //START BG thread
     // bgThreadMutex = port::RWMutex();
     stopBGThread = false;
-    port::RWMutex bgThreadMutex;
+    bool bgWriteFlag = false;
     options.env->StartThread(MTThreadBodyBackground, nullptr);
 
 
     //std::cout<<"OANA: memtable.cc our memtable!\n";
   } else{
 	  our_memtable_ = false;
+    bool bgWriteFlag = false;
+
     //std::cout<<"OANA: memtable.cc NOT our memtable!\n";
   }
 

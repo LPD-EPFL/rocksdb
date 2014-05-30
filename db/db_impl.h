@@ -32,11 +32,25 @@
 namespace rocksdb {
 
 //OANA: variables for the Concurrent Skiplist implementation
-static const int kMaxThreads = 100;
 //TODO: align and pad these arrays 
-static int num_inserts[kMaxThreads];
-static int num_deletes[kMaxThreads];
-static int ongoing[kMaxThreads];
+
+struct elem{
+  int flag;
+  char padding[64-sizeof(int)];
+};
+  
+typedef __attribute__((aligned (64))) struct elem aligned_elem;
+
+static const int kMaxThreads = 100;
+
+//static   int num_inserts[kMaxThreads];
+//static   int num_deletes[kMaxThreads];
+//static   int ongoing[kMaxThreads];  
+
+static  aligned_elem num_inserts[kMaxThreads];
+static  aligned_elem num_deletes[kMaxThreads];
+static  aligned_elem ongoing[kMaxThreads];
+
 //TODO: define a lock for our skiplist
 
 //END OANA

@@ -24,8 +24,8 @@ namespace rocksdb {
 
 //IGOR: Flag used to differentiate between rocksdb memtables and ssyncbench memtables
 extern bool our_memtable_;
-extern port::RWMutex bgThreadMutex;
-//port::RWMutex bgThreadMutex;
+extern bool bgWriteFlag;
+extern int kNumThreads;
 
 
 class Mutex;
