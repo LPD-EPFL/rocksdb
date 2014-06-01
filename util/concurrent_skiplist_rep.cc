@@ -67,6 +67,10 @@ public:
     return (sl_contains(intset, k) != nullptr);
   }
 
+  virtual void FlushToDisk(const char* filename) override {
+    // TODO
+  }
+
   virtual size_t ApproximateMemoryUsage() override {
     // All memory is allocated through arena; nothing to report here
     return 0;

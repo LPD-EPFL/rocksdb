@@ -196,7 +196,8 @@ class MemTable {
   const size_t kArenaBlockSize;
   const size_t kWriteBufferSize;
   Arena arena_;
-  unique_ptr<MemTableRep> table_;
+  // unique_ptr<MemTableRep> table_;
+  MemTableRep* table_;
 
 
 

@@ -62,6 +62,8 @@ class HashLinkListRep : public MemTableRep {
 
   virtual void Insert(const char* key, const char* value) override;
 
+  virtual void FlushToDisk(const char* filename) override {}
+
   virtual bool Contains(const char* key) const override;
 
   virtual size_t ApproximateMemoryUsage() override;
@@ -336,6 +338,8 @@ HashLinkListRep::HashLinkListRep(const MemTableRep::KeyComparator& compare,
 
 HashLinkListRep::~HashLinkListRep() {
 }
+
+// void FlushToDisk(const char* filename) {}
 
 void HashLinkListRep::Insert(const char* key, const char* value){}
 

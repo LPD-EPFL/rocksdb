@@ -40,6 +40,8 @@ volatile bool bgWriteFlag;
 //BG thread Body
 static void MTThreadBodyBackground(void* arg) {
 
+  MemTableRep* my_table_ = (MemTableRep*) arg;
+
   while(!stopBGThread){
     //printf("%d: Hello :)\n", time(0)*1000);
     usleep(2000000);
@@ -49,6 +51,7 @@ static void MTThreadBodyBackground(void* arg) {
     }
     printf("Let's see how much you guys have written\n");
     //TODO: Check total # of updates and if necessary write to disk;
+    my_table_->FlushToDisk("lol");
     bgWriteFlag = false;
   }
 }
@@ -85,7 +88,7 @@ MemTable::MemTable(const InternalKeyComparator& cmp, const Options& options)
     // bgThreadMutex = port::RWMutex();
     stopBGThread = false;
     bool bgWriteFlag = false;
-    options.env->StartThread(MTThreadBodyBackground, nullptr);
+    options.env->StartThread(MTThreadBodyBackground, table_);
 
 
     //std::cout<<"OANA: memtable.cc our memtable!\n";
@@ -97,11 +100,6 @@ MemTable::MemTable(const InternalKeyComparator& cmp, const Options& options)
   }
 
 }
-
-static void writeToDisk() {
-  // lock must be held here;
-}
-
 
 MemTable::~MemTable() {
   assert(refs_ == 0);
