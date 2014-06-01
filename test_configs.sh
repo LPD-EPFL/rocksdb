@@ -11,3 +11,6 @@ do
 		./db_test -u$update -d1 -n$numThreads -i1024 | grep -w 'stopping\|Options' >> $filename
 	done
 done
+
+perl parse_results.pl "$filename"
+echo "Done!\n"
