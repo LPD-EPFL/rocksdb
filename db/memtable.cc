@@ -34,8 +34,8 @@
 
 namespace rocksdb {
 
-bool stopBGThread;  
-bool bgWriteFlag;
+volatile bool stopBGThread;  
+volatile bool bgWriteFlag;
 
 //BG thread Body
 static void MTThreadBodyBackground(void* arg) {

@@ -47,9 +47,9 @@ static const int kMaxThreads = 100;
 //static   int num_deletes[kMaxThreads];
 //static   int ongoing[kMaxThreads];  
 
-static  aligned_elem num_inserts[kMaxThreads];
-static  aligned_elem num_deletes[kMaxThreads];
-static  aligned_elem ongoing[kMaxThreads];
+volatile  static aligned_elem num_inserts[kMaxThreads];
+volatile  static aligned_elem num_deletes[kMaxThreads];
+volatile  static aligned_elem ongoing[kMaxThreads];
 
 //TODO: define a lock for our skiplist
 
