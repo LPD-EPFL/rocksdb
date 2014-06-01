@@ -40,20 +40,20 @@ volatile bool bgWriteFlag;
 //BG thread Body
 static void MTThreadBodyBackground(void* arg) {
 
-  MemTableRep* my_table_ = (MemTableRep*) arg;
+  // MemTableRep* my_table_ = (MemTableRep*) arg;
 
-  while(!stopBGThread){
-    //printf("%d: Hello :)\n", time(0)*1000);
-    usleep(2000000);
-    bgWriteFlag = true;
-    for (int i=0; i < rocksdb::kNumThreads; i++){
-      while(rocksdb::ongoing[i].flag == 1){}
-    }
-    printf("Let's see how much you guys have written\n");
-    //TODO: Check total # of updates and if necessary write to disk;
-    my_table_->FlushToDisk("lol");
-    bgWriteFlag = false;
-  }
+  // while(!stopBGThread){
+  //   //printf("%d: Hello :)\n", time(0)*1000);
+  //   usleep(2000000);
+  //   bgWriteFlag = true;
+  //   for (int i=0; i < rocksdb::kNumThreads; i++){
+  //     while(rocksdb::ongoing[i].flag == 1){}
+  //   }
+  //   printf("Let's see how much you guys have written\n");
+  //   //TODO: Check total # of updates and if necessary write to disk;
+  //   my_table_->FlushToDisk("lol");
+  //   bgWriteFlag = false;
+  // }
 }
 
 MemTable::MemTable(const InternalKeyComparator& cmp, const Options& options)

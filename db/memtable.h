@@ -68,8 +68,6 @@ class MemTable {
     return nullptr;
   }
 
-
-
   // Returns an estimate of the number of bytes of data in use by this
   // data structure.
   //
@@ -96,6 +94,10 @@ class MemTable {
   // Seek is changed - the result might only include keys with the same prefix
   // as the seek-key.
   Iterator* NewIterator(const ReadOptions& options = ReadOptions());
+
+  void FlushToDisk(const char * filename) {
+    table_->FlushToDisk(filename);
+  } 
 
   // Add an entry into memtable that maps key to value at the
   // specified sequence number and with the specified type.

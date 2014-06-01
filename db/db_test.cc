@@ -6367,6 +6367,28 @@ TEST(DBTest, SleepTest) {
 
 }
 
+TEST(DBTest, SmallFlushTest) {
+  Options opts = CurrentOptions();
+  opts.statistics = CreateDBStatistics();
+  opts.write_buffer_size = 100000000;
+  opts.max_write_buffer_number = 8;
+  opts.min_write_buffer_number_to_merge = 7;
+  opts.create_if_missing = true;
+  opts.memtable_factory.reset(new ConcurrentSkipListFactory());
+  seeds = seed_rand();
+
+  DestroyAndReopen(&opts);
+
+  PutNoWAL("1", "2");
+  PutNoWAL("2", "2");
+  PutNoWAL("3", "2");
+  PutNoWAL("4", "2");
+  PutNoWAL("5", "2");
+  PutNoWAL("6", "2");
+
+  dbfull()->TEST_Flush("/home/igor/rocksdb/test.dat");
+}
+
 
 }  // namespace rocksdb
 
@@ -6379,6 +6401,7 @@ int main(int argc, char** argv) {
     return 0;
   }
 
+  setenv("ROCKSDB_TESTS", "SmallFlushTest", true);
 
   //To read arguments from the command line
   struct option long_options[] = {
@@ -6455,6 +6478,5 @@ int main(int argc, char** argv) {
     }
   printf("\n");
 
-  setenv("ROCKSDB_TESTS", "IgorTestMultithreaded", true);
   return rocksdb::test::RunAllTests();
 }

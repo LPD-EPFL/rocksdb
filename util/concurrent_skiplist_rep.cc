@@ -8,6 +8,7 @@
 #include "db/skiplist.h"
 #include "db/skiplist-string-pugh/intset.h"
 #include <iostream>
+#include <fstream>
 #include <string.h>
 
 // ADD HERE -- IMITATE THIS
@@ -69,6 +70,24 @@ public:
 
   virtual void FlushToDisk(const char* filename) override {
     // TODO
+    using namespace std;
+    ofstream output_file(filename, ios::out | ios::binary | ios::trunc);
+
+    if (!output_file.is_open()) {
+      printf("Error opening file\n");
+      return;
+    }
+
+    size_t nodesize = sizeof(sl_node_t);
+    char * memblock = new char[nodesize];
+
+    sl_node_t* n = intset->head;
+    while(n != NULL) {
+      memcpy(memblock, (const void*)n, nodesize);
+      output_file.write(memblock, nodesize);
+      n = n->next[0];
+    }
+    output_file.close();
   }
 
   virtual size_t ApproximateMemoryUsage() override {
