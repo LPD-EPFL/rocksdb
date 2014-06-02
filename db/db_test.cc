@@ -6337,7 +6337,7 @@ TEST(DBTest, IgorTestMisc) {
 
   // ASSERT_OK(PutNoWAL("Igor", ""));
   ASSERT_OK(PutNoWAL("Igor", "Oana"));
-  ASSERT_OK(PutNoWAL("Igor", "Igor"));
+  ASSERT_OK(PutNoWAL("Ido", "Bigor"));
 
 
 
@@ -6379,12 +6379,17 @@ TEST(DBTest, SmallFlushTest) {
 
   DestroyAndReopen(&opts);
 
-  PutNoWAL("1", "2");
-  PutNoWAL("2", "2");
-  PutNoWAL("3", "2");
-  PutNoWAL("4", "2");
-  PutNoWAL("5", "2");
-  PutNoWAL("6", "2");
+  PutNoWAL("a", "b");
+  PutNoWAL("c", "d");
+  PutNoWAL("e", "f");
+  PutNoWAL("g", "h");
+  PutNoWAL("i", "j");
+  PutNoWAL("k", "l");
+
+  using namespace std;
+  cout << Get("a") << endl;
+  cout << Get("c") << endl;
+  cout << Get("e") << endl;
 
   dbfull()->TEST_Flush("/home/igor/rocksdb/test.dat");
 }

@@ -71,20 +71,17 @@ public:
   virtual void FlushToDisk(const char* filename) override {
     // TODO
     using namespace std;
-    ofstream output_file(filename, ios::out | ios::binary | ios::trunc);
+    ofstream output_file(filename, ios::out | ios::trunc);
 
     if (!output_file.is_open()) {
       printf("Error opening file\n");
       return;
     }
 
-    size_t nodesize = sizeof(sl_node_t);
-    char * memblock = new char[nodesize];
+    sl_node_t* n = intset->head->next[0];
+    while(n->next[0] != NULL) {
 
-    sl_node_t* n = intset->head;
-    while(n != NULL) {
-      memcpy(memblock, (const void*)n, nodesize);
-      output_file.write(memblock, nodesize);
+      output_file << (char *) n->key.key << endl << (char *) n->val.val << endl;
       n = n->next[0];
     }
     output_file.close();
