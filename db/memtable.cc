@@ -36,24 +36,37 @@ namespace rocksdb {
 
 volatile bool stopBGThread;  
 volatile bool bgWriteFlag;
+volatile aligned_elem num_inserts[kMaxThreads];
+volatile aligned_elem num_deletes[kMaxThreads];
+volatile aligned_elem ongoing[kMaxThreads];
 
 //BG thread Body
 static void MTThreadBodyBackground(void* arg) {
 
-  // MemTableRep* my_table_ = (MemTableRep*) arg;
+  MemTableRep* my_table_ = (MemTableRep*) arg;
+  int numUpdates = 0;
 
-  // while(!stopBGThread){
-  //   //printf("%d: Hello :)\n", time(0)*1000);
-  //   usleep(2000000);
-  //   bgWriteFlag = true;
-  //   for (int i=0; i < rocksdb::kNumThreads; i++){
-  //     while(rocksdb::ongoing[i].flag == 1){}
-  //   }
-  //   printf("Let's see how much you guys have written\n");
-  //   //TODO: Check total # of updates and if necessary write to disk;
-  //   my_table_->FlushToDisk("lol");
-  //   bgWriteFlag = false;
-  // }
+  while(!stopBGThread){
+    //printf("%d: Hello :)\n", time(0)*1000);
+    usleep(1000000);
+    bgWriteFlag = true;
+    for (int i=0; i < rocksdb::kNumThreads; i++){
+      while(rocksdb::ongoing[i].flag == 1){ printf("ongoing %d\n", i);}
+    }
+    //TODO: Check total # of updates and if necessary write to disk;
+    for (int i=0; i < rocksdb::kNumThreads; i++) {
+      numUpdates += rocksdb::num_inserts[i].flag + rocksdb::num_deletes[i].flag;
+    }
+    printf("Let's see how much you guys have written: %d\n", numUpdates);
+
+
+    if (numUpdates > kUpdateThreshold){    
+      printf("Flush to disk\n");
+      my_table_->FlushToDisk("db.db");
+      numUpdates = 0;
+    }
+    bgWriteFlag = false;
+  }
 }
 
 MemTable::MemTable(const InternalKeyComparator& cmp, const Options& options)
@@ -87,14 +100,14 @@ MemTable::MemTable(const InternalKeyComparator& cmp, const Options& options)
     //START BG thread
     // bgThreadMutex = port::RWMutex();
     stopBGThread = false;
-    bool bgWriteFlag = false;
+    bgWriteFlag = false;
     options.env->StartThread(MTThreadBodyBackground, table_);
 
 
     //std::cout<<"OANA: memtable.cc our memtable!\n";
   } else{
 	  our_memtable_ = false;
-    bool bgWriteFlag = false;
+    bgWriteFlag = false;
 
     //std::cout<<"OANA: memtable.cc NOT our memtable!\n";
   }

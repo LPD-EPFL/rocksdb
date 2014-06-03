@@ -6128,6 +6128,7 @@ static  int write_percent = 10;
 //namespace {
 
 int kNumThreads = 1;
+int kUpdateThreshold = 2000;
 static  int kTestSeconds = 1;
 static  int kNumKeys = 1024;
 static  int kWritePercent = 10;
@@ -6192,6 +6193,7 @@ static void MTThreadBodyIgor(void* arg) {
 
   // MAIN TEST LOOP
 
+  int numConflicts = 0;
   bool write = true;
   uint64_t counter = 0;
   uint64_t writeCount = 0, deleteCount = 0, getCount = 0;
@@ -6207,12 +6209,13 @@ static void MTThreadBodyIgor(void* arg) {
       // We add some padding for force compactions.
 
       //if GL is not taken, continue; if GL is taken wait
-      restart:
+restart:
       while (rocksdb::bgWriteFlag){}
       rocksdb::ongoing[id].flag = 1;
       if(rocksdb::bgWriteFlag){
         rocksdb::ongoing[id].flag = 0;
-        printf("goto restart thread %d\n", id);
+        numConflicts += 1;
+        // printf("goto restart thread %d\n", id);
         goto restart;
       }
 
@@ -6242,7 +6245,8 @@ static void MTThreadBodyIgor(void* arg) {
   }
   t->state->thread_done[id].Release_Store(t);
   printf("... stopping thread %d after %d ops: %llu writes, %llu deletes, %llu gets\n", id, int(counter), writeCount, deleteCount, getCount);
-  
+  printf("num_inserts: %d\n", rocksdb::num_inserts[id].flag);
+  printf("num conflicts: %d\n", numConflicts);
   
   t->performanceResults = perf_context.ToString();
 }
@@ -6406,7 +6410,7 @@ int main(int argc, char** argv) {
     return 0;
   }
 
-  setenv("ROCKSDB_TESTS", "SmallFlushTest", true);
+  setenv("ROCKSDB_TESTS", "IgorTestMultithreaded", true);
 
   //To read arguments from the command line
   struct option long_options[] = {
@@ -6416,7 +6420,7 @@ int main(int argc, char** argv) {
     {"initial-size",              required_argument, NULL, 'i'},
     {"num-threads",               required_argument, NULL, 'n'},
     {"update-rate",               required_argument, NULL, 'u'},
-
+    {"backup-update-threshold",   required_argument, NULL, 't'},
     {NULL, 0, NULL, 0}
   };
 
@@ -6426,7 +6430,7 @@ int main(int argc, char** argv) {
   while(1) 
     {
       i = 0;
-      c = getopt_long(argc, argv, "hAf:d:i:n:u:", long_options, &i);
+      c = getopt_long(argc, argv, "hAf:d:i:n:u:t:", long_options, &i);
 
       if(c == -1)
   break;
@@ -6475,6 +6479,10 @@ int main(int argc, char** argv) {
     rocksdb::kWritePercent = atoi(optarg);
     printf("Updates %d ", rocksdb::kWritePercent);
     break;
+  case 't':
+    rocksdb::kUpdateThreshold = atoi(optarg);
+    printf("Updates %d ", rocksdb::kUpdateThreshold);
+    break;  
   case '?':
   default:
     printf("Use -h or --help for help\n");
