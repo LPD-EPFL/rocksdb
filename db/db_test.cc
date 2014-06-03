@@ -6267,9 +6267,8 @@ TEST(DBTest, IgorTestMultithreaded) {
   //opts.prefix_extractor.reset(NewFixedPrefixTransform(2));
   //opts.memtable_factory.reset(NewHashSkipListRepFactory());
 
-
-
-  //seeds = seed_rand();
+  seeds = seed_rand();
+  levelmax = floor_log_2((unsigned int) kNumKeys);
   DestroyAndReopen(&opts);
   printf("%s\n", opts.memtable_factory->Name());
 
@@ -6334,7 +6333,7 @@ TEST(DBTest, IgorTestMisc) {
   opts.create_if_missing = true;
   opts.memtable_factory.reset(new ConcurrentSkipListFactory());
   seeds = seed_rand();
-
+  levelmax = floor_log_2((unsigned int) kNumKeys);
   DestroyAndReopen(&opts);
 
   printf("%s\n", opts.memtable_factory->Name());
@@ -6361,7 +6360,7 @@ TEST(DBTest, SleepTest) {
   opts.create_if_missing = true;
   opts.memtable_factory.reset(new ConcurrentSkipListFactory());
   seeds = seed_rand();
-
+  levelmax = floor_log_2((unsigned int) kNumKeys);
   DestroyAndReopen(&opts);
 
   printf("%s\n", opts.memtable_factory->Name());
@@ -6380,7 +6379,7 @@ TEST(DBTest, SmallFlushTest) {
   opts.create_if_missing = true;
   opts.memtable_factory.reset(new ConcurrentSkipListFactory());
   seeds = seed_rand();
-
+  levelmax = floor_log_2((unsigned int) kNumKeys);
   DestroyAndReopen(&opts);
 
   PutNoWAL("a", "b");

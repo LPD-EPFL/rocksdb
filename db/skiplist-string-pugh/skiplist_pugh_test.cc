@@ -31,7 +31,7 @@ class PughTest {
 public:
 	PughTest() {
 		// levelmax = floor_log_2((unsigned int) initial);
-		levelmax = 3;
+		// levelmax = 3;
   		size_pad_32 = sizeof(sl_node_t) + (levelmax * sizeof(sl_node_t *));
   		while (size_pad_32 & 31)
     	{

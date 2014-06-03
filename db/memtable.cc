@@ -45,24 +45,26 @@ static void MTThreadBodyBackground(void* arg) {
 
   MemTableRep* my_table_ = (MemTableRep*) arg;
   int numUpdates = 0;
+  int oldNumUpdates = 0;
 
   while(!stopBGThread){
     //printf("%d: Hello :)\n", time(0)*1000);
     usleep(1000000);
     bgWriteFlag = true;
     for (int i=0; i < rocksdb::kNumThreads; i++){
-      while(rocksdb::ongoing[i].flag == 1){ printf("ongoing %d\n", i);}
+      while(rocksdb::ongoing[i].flag == 1){}
     }
     //TODO: Check total # of updates and if necessary write to disk;
     for (int i=0; i < rocksdb::kNumThreads; i++) {
       numUpdates += rocksdb::num_inserts[i].flag + rocksdb::num_deletes[i].flag;
     }
-    printf("Let's see how much you guys have written: %d\n", numUpdates);
+    printf("Let's see how much you guys have written: %d\n", numUpdates - oldNumUpdates);
 
 
-    if (numUpdates > kUpdateThreshold){    
+    if (numUpdates - oldNumUpdates > kUpdateThreshold){    
       printf("Flush to disk\n");
       my_table_->FlushToDisk("db.db");
+      oldNumUpdates = numUpdates;
       numUpdates = 0;
     }
     bgWriteFlag = false;
