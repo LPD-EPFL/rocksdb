@@ -79,7 +79,7 @@ static void MTThreadBodyBackground(void* arg) {
       std::ofstream output_file("db.db", std::ios::out | std::ios::trunc);
       auto end2 = std::chrono::system_clock::now();
       auto elapsed2 = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
-      printf("String construction milis %d Flush to disk milis %d\n", elapsed, elapsed2);
+      printf("Construct String milis %d Flush to disk milis %d\n", elapsed, elapsed2);
 
       if (output_file.is_open()) {
         output_file << sl;

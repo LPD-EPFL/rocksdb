@@ -9,7 +9,7 @@ do
 	for numThreads in 1 2 4 8 16 19
 	do
 		#./db_test -u$update -d10 -n$numThreads -i1048576 | grep -w 'stopping\|Options' >> $filename
-		./db_test -u$update -d10 -n$numThreads -i1024 | grep -w 'stopping\|Options' >> $filename
+		./db_test -u$update -d10 -n$numThreads -i1024 | grep -w 'stopping\|Options\|Construct' >> $filename
 	done
 done
 
