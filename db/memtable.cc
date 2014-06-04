@@ -63,14 +63,27 @@ static void MTThreadBodyBackground(void* arg) {
 
     if (numUpdates - oldNumUpdates > kUpdateThreshold){    
       printf("Flush to disk\n");
+      
+      using namespace std;
+      clock_t begin = clock();
       std::string sl = my_table_->StringRep();
+      clock_t end = clock();
+      double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
+      printf("String construction elapsed seconds: %d\n", elapsed_secs);
+
+
+
+
       oldNumUpdates = numUpdates;
       numUpdates = 0;
       bgWriteFlag = false;
 
       // FLUSH TO DISK
-
+      begin = clock();
       std::ofstream output_file("db.db", std::ios::out | std::ios::trunc);
+      end = clock();
+      elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
+      printf("Flush to disk elapsed seconds: %d\n", elapsed_secs);
 
       if (output_file.is_open()) {
         output_file << sl;
