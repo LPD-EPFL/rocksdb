@@ -49,9 +49,9 @@ while (<INPUT_FILE>) {
 				$avg_string_creation = 0;
 			}
 
-			print $out "$num_threads\t\t$avg_ops\t\t$avg_writes\t\t$avg_deletes\t\t$avg_gets\t\t$avg_string_creation\t\t$avg_write_to_disk \n";
+			print $out "$num_threads\t\t$avg_ops\t\t$avg_writes\t\t$avg_deletes\t\t$avg_gets\t\t$avg_string_creation\t\t$avg_write_to_disk\t\t$backup_count\n";
 
-			print "Average vals ops: $avg_ops, writes: $avg_writes, deletes: $avg_deletes, gets: $avg_gets, bg_str_creation: $avg_string_creation, bg_flush_to_disk: $avg_write_to_disk \n";
+			print "Average vals ops: $avg_ops, writes: $avg_writes, deletes: $avg_deletes, gets: $avg_gets, bg_str_creation: $avg_string_creation, bg_flush_to_disk: $avg_write_to_disk, backup count: $backup_count \n";
 		} else {
 			$first_pass = 0;
 		}	
@@ -112,8 +112,8 @@ if ($backup_count != 0) {
 }
 
 
-print $out "$num_threads\t\t$avg_ops\t\t$avg_writes\t\t$avg_deletes\t\t$avg_gets \n";
-print "Average vals ops: $avg_ops, writes: $avg_writes, deletes: $avg_deletes, gets: $avg_gets\t\t$avg_string_creation\t\t$avg_write_to_disk \n";
+print $out "$num_threads\t\t$avg_ops\t\t$avg_writes\t\t$avg_deletes\t\t$avg_gets\t\t$avg_string_creation\t\t$avg_write_to_disk\t\t$backup_count \n";
+print "Average vals ops: $avg_ops, writes: $avg_writes, deletes: $avg_deletes, gets: $avg_gets\t\t$avg_string_creation\t\t$avg_write_to_disk\t\t$backup_count \n";
 
 
 close(INPUT_FILE);
