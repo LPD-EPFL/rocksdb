@@ -51,6 +51,7 @@ sl_new_simple_node(strkey_t key, strval_t val, int toplevel, int transactional)
   sl_node_t* node;
 	
 #if GC == 1
+  #pragma message "GC should be working \n\n\n\n\n\n\n"
   if (unlikely(transactional))
     {
       /* use levelmax instead of toplevel in order to be able to use the ssalloc allocator */

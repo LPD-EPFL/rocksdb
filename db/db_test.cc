@@ -6157,6 +6157,12 @@ static void MTThreadBodyIgor(void* arg) {
   DB* db = t->state->test->db_;
   int writePeriod = kWritePercent != 0 ? 100/kWritePercent : 0;
   seeds = seed_rand();
+#if GC == 1
+  #pragma message "LOL !!!!!!!!!!!!!!!!!"
+  alloc = (ssmem_allocator_t*) malloc(sizeof(ssmem_allocator_t));
+  assert(alloc != NULL);
+  ssmem_alloc_init_fs_size(alloc, SSMEM_DEFAULT_MEM_SIZE, SSMEM_GC_FREE_SET_SIZE, id);
+#endif
   ssalloc_init();
 
   fprintf(stderr, "... starting thread %d\n", id);
@@ -6259,8 +6265,8 @@ TEST(DBTest, IgorTestMultithreaded) {
   Options opts = CurrentOptions();
   opts.statistics = CreateDBStatistics();
   opts.write_buffer_size = 100000000;
-  opts.max_write_buffer_number = 8;
-  opts.min_write_buffer_number_to_merge = 7;
+  opts.max_write_buffer_number = 2;
+  opts.min_write_buffer_number_to_merge = 1;
   opts.create_if_missing = true;
 
   opts.memtable_factory.reset(new ConcurrentSkipListFactory());
@@ -6268,6 +6274,7 @@ TEST(DBTest, IgorTestMultithreaded) {
   //opts.memtable_factory.reset(NewHashSkipListRepFactory());
 
   seeds = seed_rand();
+
   levelmax = floor_log_2((unsigned int) kNumKeys);
   DestroyAndReopen(&opts);
   printf("%s\n", opts.memtable_factory->Name());

@@ -39,6 +39,7 @@ ifeq ($(PC_NAME), lpdxeon2680)
 endif
 
 OPT += -D$(LOCK)
+OPT += -DGC=0
 
 # ASAN doesn't work well with jemalloc. If we're compiling with ASAN, we should use regular malloc.
 ifdef COMPILE_WITH_ASAN
