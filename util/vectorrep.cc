@@ -34,7 +34,7 @@ class VectorRep : public MemTableRep {
 
   virtual void Insert(const char* key, const char* value) override;
 
-  virtual void FlushToDisk(const char* filename) override {}
+  virtual std::string StringRep() override {return nullptr;}
 
   // Returns true iff an entry that compares equal to key is in the collection.
   virtual bool Contains(const char* key) const override;

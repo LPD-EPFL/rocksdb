@@ -120,8 +120,8 @@ class MemTable {
   // as the seek-key.
   Iterator* NewIterator(const ReadOptions& options = ReadOptions());
 
-  void FlushToDisk(const char * filename) {
-    table_->FlushToDisk(filename);
+  std::string StringRep() {
+    return table_->StringRep();
   } 
 
   // Add an entry into memtable that maps key to value at the

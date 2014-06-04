@@ -29,7 +29,7 @@ class HashSkipListRep : public MemTableRep {
 
   virtual void Insert(const char* key, const char* value) override;
 
-  virtual void FlushToDisk(const char* filename) override {}
+  virtual std::string StringRep() override {return nullptr;}
 
   virtual bool Contains(const char* key) const override;
 
@@ -259,7 +259,7 @@ HashSkipListRep::Bucket* HashSkipListRep::GetInitializedBucket(
   return bucket;
 }
 
-//void FlushToDisk(const char* filename) {}
+//std::string StringRep(const char* filename) {}
 
 void HashSkipListRep::Insert(const char* key, const char* value){}
 

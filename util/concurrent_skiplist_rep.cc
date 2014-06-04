@@ -8,7 +8,6 @@
 #include "db/skiplist.h"
 #include "db/skiplist-string-pugh/intset.h"
 #include <iostream>
-#include <fstream>
 #include <string.h>
 
 // ADD HERE -- IMITATE THIS
@@ -68,23 +67,30 @@ public:
     return (sl_contains(intset, k) != nullptr);
   }
 
-  virtual void FlushToDisk(const char* filename) override {
+  virtual std::string StringRep() override {
     // TODO
     using namespace std;
-    ofstream output_file(filename, ios::out | ios::trunc);
+    string res;
+    // ofstream output_file(filename, ios::out | ios::trunc);
 
-    if (!output_file.is_open()) {
-      printf("Error opening file\n");
-      return;
-    }
+    // if (!output_file.is_open()) {
+    //   printf("Error opening file\n");
+    //   return nullptr;
+    // }
 
     sl_node_t* n = intset->head->next[0];
     while(n->next[0] != NULL) {
 
-      output_file << (char *) n->key.key << endl << (char *) n->val.val << endl;
+      // output_file << (char *) n->key.key << endl << (char *) n->val.val << endl;
+      res.append((char *) n->key.key);
+      res.push_back('\n');
+      res.append((char *) n->val.val);
+      res.push_back('\n');
       n = n->next[0];
     }
-    output_file.close();
+    // output_file.close();
+
+    return res;
   }
 
   virtual size_t ApproximateMemoryUsage() override {

@@ -12,6 +12,7 @@
 #include <memory>
 #include <algorithm>
 #include <iostream>
+#include <fstream>
 #include <unistd.h>
 #include <ctime>
 
@@ -60,14 +61,27 @@ static void MTThreadBodyBackground(void* arg) {
     }
     printf("Let's see how much you guys have written: %d\n", numUpdates - oldNumUpdates);
 
-
     if (numUpdates - oldNumUpdates > kUpdateThreshold){    
       printf("Flush to disk\n");
-      my_table_->FlushToDisk("db.db");
+      std::string sl = my_table_->StringRep();
       oldNumUpdates = numUpdates;
       numUpdates = 0;
+      bgWriteFlag = false;
+
+      // FLUSH TO DISK
+
+      std::ofstream output_file("db.db", std::ios::out | std::ios::trunc);
+
+      if (output_file.is_open()) {
+        output_file << sl;
+      }
+
+      output_file.close();
+      
+    } else {
+      bgWriteFlag = false;
     }
-    bgWriteFlag = false;
+    
   }
 }
 

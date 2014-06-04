@@ -73,7 +73,7 @@ class MemTableRep {
   // Returns true iff an entry that compares equal to key is in the collection.
   virtual bool Contains(const char* key) const = 0;
 
-  virtual void FlushToDisk(const char* filename) = 0;
+  virtual std::string StringRep() = 0;
 
   // Notify this table rep that it will no longer be added to. By default, does
   // nothing.
