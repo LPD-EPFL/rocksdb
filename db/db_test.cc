@@ -6401,7 +6401,7 @@ TEST(DBTest, SmallFlushTest) {
   cout << Get("c") << endl;
   cout << Get("e") << endl;
 
-  dbfull()->TEST_Flush("/home/igor/rocksdb/test.dat");
+  dbfull()->TEST_Flush();
 }
 
 
