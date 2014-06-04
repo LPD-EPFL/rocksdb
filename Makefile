@@ -41,6 +41,28 @@ endif
 OPT += -D$(LOCK)
 OPT += -DGC=0
 
+LIBSSMEM = db/synchrobench-utils
+
+ifndef ARCH_NAME
+    ARCH_NAME = $(shell uname -m)
+endif
+
+ifeq ($(ARCH_NAME), i386)
+
+    LDFLAGS += -L$(LIBSSMEM)/lib -lssmem_x86
+endif
+
+ifeq ($(ARCH_NAME), i686)
+
+    LDFLAGS += -L$(LIBSSMEM)/lib -lssmem_x86
+endif
+
+ifeq ($(ARCH_NAME), x86_64)
+
+    LDFLAGS += -L$(LIBSSMEM)/lib -lssmem_x86_64
+endif
+
+
 # ASAN doesn't work well with jemalloc. If we're compiling with ASAN, we should use regular malloc.
 ifdef COMPILE_WITH_ASAN
 	# ASAN compile flags
