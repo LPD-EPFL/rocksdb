@@ -64,26 +64,22 @@ static void MTThreadBodyBackground(void* arg) {
     if (numUpdates - oldNumUpdates > kUpdateThreshold){    
       printf("Flush to disk\n");
       
-      using namespace std;
-      clock_t begin = clock();
+      auto start = std::chrono::system_clock::now();
       std::string sl = my_table_->StringRep();
-      clock_t end = clock();
-      double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
-      printf("String construction elapsed seconds: %d\n", elapsed_secs);
-
-
-
+      auto end = std::chrono::system_clock::now();
+      auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);      
+      //printf("String construction elapsed seconds: %d\n", elapsed);
 
       oldNumUpdates = numUpdates;
       numUpdates = 0;
       bgWriteFlag = false;
 
       // FLUSH TO DISK
-      begin = clock();
+      auto start2 = std::chrono::system_clock::now();
       std::ofstream output_file("db.db", std::ios::out | std::ios::trunc);
-      end = clock();
-      elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
-      printf("Flush to disk elapsed seconds: %d\n", elapsed_secs);
+      auto end2 = std::chrono::system_clock::now();
+      auto elapsed2 = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+      printf("String construction milis %d Flush to disk milis %d\n", elapsed, elapsed2);
 
       if (output_file.is_open()) {
         output_file << sl;
