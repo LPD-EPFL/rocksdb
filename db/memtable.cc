@@ -15,6 +15,8 @@
 #include <fstream>
 #include <unistd.h>
 #include <ctime>
+#include <chrono>
+#include <ratio>
 
 #include "db/db_impl.h"
 #include "db/dbformat.h"
@@ -67,7 +69,7 @@ static void MTThreadBodyBackground(void* arg) {
       auto start = std::chrono::system_clock::now();
       std::string sl = my_table_->StringRep();
       auto end = std::chrono::system_clock::now();
-      auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);      
+      auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);      
       //printf("String construction elapsed seconds: %d\n", elapsed);
 
       oldNumUpdates = numUpdates;
@@ -78,8 +80,8 @@ static void MTThreadBodyBackground(void* arg) {
       auto start2 = std::chrono::system_clock::now();
       std::ofstream output_file("db.db", std::ios::out | std::ios::trunc);
       auto end2 = std::chrono::system_clock::now();
-      auto elapsed2 = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
-      printf("Construct String milis %d Flush to disk milis %d\n", elapsed, elapsed2);
+      auto elapsed2 = std::chrono::duration_cast<std::chrono::microseconds>(end2 - start2);
+      printf("Construct String microsec %d Flush to disk microsec %d\n", elapsed, elapsed2);
 
       if (output_file.is_open()) {
         output_file << sl;
