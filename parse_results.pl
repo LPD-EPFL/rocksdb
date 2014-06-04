@@ -41,8 +41,13 @@ while (<INPUT_FILE>) {
 			$avg_deletes = int($total_deletes/($num_threads * $duration));
 			$avg_gets = int($total_gets/($num_threads * $duration));
 
-			$avg_write_to_disk = int ($total_flush_to_disk_time/$backup_count);
-			$avg_string_creation = int ($total_string_creation_time/$backup_count);
+			if ($backup_count != 0) {	
+				$avg_write_to_disk = int ($total_flush_to_disk_time/$backup_count);
+				$avg_string_creation = int ($total_string_creation_time/$backup_count);
+			} else{
+				$avg_write_to_disk = 0;
+				$avg_string_creation = 0;
+			}
 
 			print $out "$num_threads\t\t$avg_ops\t\t$avg_writes\t\t$avg_deletes\t\t$avg_gets\t\t$avg_string_creation\t\t$avg_write_to_disk \n";
 
@@ -85,7 +90,7 @@ while (<INPUT_FILE>) {
 
 	}
 
-	if (/^Construct String milis ([0-9]*) Flush to disk milis ([0-9]*)/){
+	if (/^Construct String microsec ([0-9]*) Flush to disk microsec ([0-9]*)/){
 		$total_string_creation_time += $1;
 		$total_flush_to_disk_time = $2;
 		$backup_count += 1;
@@ -98,6 +103,15 @@ $avg_ops = int($total_ops/($num_threads * $duration));
 $avg_writes = int($total_writes/($num_threads * $duration));
 $avg_deletes = int($total_deletes/($num_threads * $duration));
 $avg_gets = int($total_gets/($num_threads * $duration));
+if ($backup_count != 0) {
+    $avg_write_to_disk = int ($total_flush_to_disk_time/$backup_count);
+    $avg_string_creation = int ($total_string_creation_time/$backup_count);
+} else{
+    $avg_write_to_disk = 0;
+    $avg_string_creation = 0;
+}
+
+
 print $out "$num_threads\t\t$avg_ops\t\t$avg_writes\t\t$avg_deletes\t\t$avg_gets \n";
 print "Average vals ops: $avg_ops, writes: $avg_writes, deletes: $avg_deletes, gets: $avg_gets\t\t$avg_string_creation\t\t$avg_write_to_disk \n";
 
