@@ -6261,7 +6261,10 @@ restart:
 
 
 TEST(DBTest, IgorTestMultithreaded) {
-  
+
+  levelmax = floor_log_2((unsigned int) kNumKeys);
+  printf("DB_TEST: LEVEL MAX %d\n", levelmax);
+    
   Options opts = CurrentOptions();
   opts.statistics = CreateDBStatistics();
   opts.write_buffer_size = 100000000;
@@ -6275,8 +6278,7 @@ TEST(DBTest, IgorTestMultithreaded) {
 
   seeds = seed_rand();
 
-  levelmax = floor_log_2((unsigned int) kNumKeys);
-  printf("DB_TEST: LEVEL MAX %d\n", levelmax);
+
   DestroyAndReopen(&opts);
   printf("%s\n", opts.memtable_factory->Name());
 
