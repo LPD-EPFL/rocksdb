@@ -6276,6 +6276,7 @@ TEST(DBTest, IgorTestMultithreaded) {
   seeds = seed_rand();
 
   levelmax = floor_log_2((unsigned int) kNumKeys);
+  printf("DB_TEST: LEVEL MAX %d\n", levelmax);
   DestroyAndReopen(&opts);
   printf("%s\n", opts.memtable_factory->Name());
 

@@ -139,6 +139,7 @@ sl_set_new()
       exit(1);
     }
 
+  printf("LEVEL MAX: %d\n", levelmax);  
   int64_t m = ALT_KEY_MIN;
   int64_t M = ALT_KEY_MAX;
   strkey_t key_min, key_max;
