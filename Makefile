@@ -39,7 +39,7 @@ ifeq ($(PC_NAME), lpdxeon2680)
 endif
 
 OPT += -D$(LOCK)
-OPT += -DGC=0
+OPT += -DGC=1
 
 LIBSSMEM = db/synchrobench-utils
 
