@@ -25,7 +25,7 @@ public:
   explicit ConcurrentSkipListRep(const MemTableRep::KeyComparator& compare, Arena* arena)
     : skip_list_(compare, arena) {
       // Allocate and instantiate intset
-      levelmax = 3;
+      //levelmax = 3;
       size_pad_32 = sizeof(sl_node_t) + (levelmax * sizeof(sl_node_t *));
       while (size_pad_32 & 31)
       {
