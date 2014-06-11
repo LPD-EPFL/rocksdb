@@ -38,7 +38,13 @@
 #include "util/statistics.h"
 #include "util/testharness.h"
 #include "util/testutil.h"
+
+#if SL == 1 // PUGH
 #include "db/skiplist-string-pugh/intset.h"
+#elif SL == 2 // HERLIHY
+#include "db/skiplist-string-herlihy/intset.h"
+#endif
+
 #include "db/synchrobench-utils/barrier.h"
 
 __thread unsigned long* seeds;
