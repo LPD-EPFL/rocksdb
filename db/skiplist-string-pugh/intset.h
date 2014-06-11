@@ -20,6 +20,7 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
+#if SL == 1
 
 #ifdef __cplusplus
 extern "C" {
@@ -31,6 +32,9 @@ strval_t* sl_contains(sl_intset_t *set, strkey_t key);
 int sl_add(sl_intset_t *set, strkey_t key, strval_t val);
 strval_t* sl_remove(sl_intset_t *set, strkey_t key);
 
+
 #ifdef __cplusplus
 }
+#endif
+
 #endif

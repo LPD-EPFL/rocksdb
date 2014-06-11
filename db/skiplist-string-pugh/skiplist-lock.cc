@@ -8,6 +8,8 @@
  *
  */
 
+#if SL == 1
+
 #include "skiplist-lock.h"
 #include "db/synchrobench-utils/utils.h"
 
@@ -196,3 +198,5 @@ int sl_set_size(sl_intset_t *set)
     }
   return size;
 }
+
+#endif

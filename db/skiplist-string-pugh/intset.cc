@@ -20,6 +20,7 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
+#if SL == 1
 
 #include "intset.h"
 
@@ -40,3 +41,5 @@ sl_remove(sl_intset_t *set, strkey_t key)
 {
   return optimistic_delete(set, key);
 }
+
+#endif

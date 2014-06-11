@@ -23,6 +23,7 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
+#if SL == 1
 
 #ifdef __cplusplus
 extern "C" {
@@ -36,4 +37,6 @@ strval_t* optimistic_delete(sl_intset_t *set, strkey_t key);
 
 #ifdef __cplusplus
 }
+#endif
+
 #endif

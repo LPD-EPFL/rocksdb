@@ -6,7 +6,13 @@
 #include "rocksdb/memtablerep.h"
 #include "db/memtable.h"
 #include "db/skiplist.h"
+
+#if SL == 1 // PUGH
 #include "db/skiplist-string-pugh/intset.h"
+#elif SL == 2 // HERLIHY
+#include "db/skiplist-string-herlihy/intset.h"
+#endif
+
 #include <iostream>
 #include <string.h>
 
@@ -14,9 +20,9 @@
 
 // extern __thread unsigned long* seeds;
 
-
 namespace rocksdb {
 namespace {
+
 class ConcurrentSkipListRep : public MemTableRep {
   SkipList<const char*, const MemTableRep::KeyComparator&> skip_list_;
   sl_intset_t* intset;

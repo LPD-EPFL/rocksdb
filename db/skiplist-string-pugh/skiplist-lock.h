@@ -21,6 +21,8 @@
  * GNU General Public License for more details.
  */
 
+#if SL == 1
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -48,7 +50,6 @@ extern "C" {
 
 #define ALGO_HERLIHY 1
 #define ALGO_PUGH 2
-
 
 extern unsigned int global_seed;
 extern __thread ssmem_allocator_t* alloc;
@@ -89,8 +90,10 @@ sl_node_t *sl_new_node(strkey_t key, strval_t val, sl_node_t *next, int toplevel
 void sl_delete_node(sl_node_t* n);
 sl_intset_t* sl_set_new();
 void sl_set_delete(sl_intset_t* set);
-int sl_set_size(sl_intset_t* cset);
+int sl_set_size(sl_intset_t* cset); 
 
 #ifdef __cplusplus
 }
+#endif
+
 #endif

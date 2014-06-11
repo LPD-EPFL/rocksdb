@@ -38,8 +38,15 @@ ifeq ($(PC_NAME), lpdxeon2680)
 	LOCK = TAS
 endif
 
+
+GC=1
+# PUGH = 1, HERLIHY=2
+SL=1
+
 OPT += -D$(LOCK)
-OPT += -DGC=0
+OPT += -DGC=$(GC)
+# OPT += -DSL=$(SL)
+OPT += -DSL=$(SL)
 
 LIBSSMEM = db/synchrobench-utils
 
@@ -390,8 +397,8 @@ block_test: table/block_test.o $(LIBOBJECTS) $(TESTHARNESS)
 skiplist_test: db/skiplist_test.o $(LIBOBJECTS) $(TESTHARNESS)
 	$(CXX) db/skiplist_test.o $(LIBOBJECTS) $(TESTHARNESS) $(EXEC_LDFLAGS) -o $@ $(LDFLAGS) $(COVERAGEFLAGS)
 
-skiplist_herlihy_test: db/skiplist-herlihy_lf/skiplist_herlihy_test.o $(LIBOBJECTS) $(TESTHARNESS)
-	$(CXX) db/skiplist-herlihy_lf/skiplist_herlihy_test.o $(LIBOBJECTS) $(TESTHARNESS) $(EXEC_LDFLAGS) -o $@ $(LDFLAGS) $(COVERAGEFLAGS)
+skiplist_herlihy_test: db/skiplist-string-herlihy/skiplist_herlihy_test.o $(LIBOBJECTS) $(TESTHARNESS)
+	$(CXX) db/skiplist-string-herlihy/skiplist_herlihy_test.o $(LIBOBJECTS) $(TESTHARNESS) $(EXEC_LDFLAGS) -o $@ $(LDFLAGS) $(COVERAGEFLAGS)
 
 skiplist_pugh_test: db/skiplist-string-pugh/skiplist_pugh_test.o $(LIBOBJECTS) $(TESTHARNESS)
 	$(CXX) db/skiplist-string-pugh/skiplist_pugh_test.o $(LIBOBJECTS) $(TESTHARNESS) $(EXEC_LDFLAGS) -o $@ $(LDFLAGS) $(COVERAGEFLAGS)

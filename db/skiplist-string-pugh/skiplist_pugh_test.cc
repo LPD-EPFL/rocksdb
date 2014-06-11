@@ -109,21 +109,21 @@ TEST(PughTest, Limits) {
 	// strncpy(max.key, (char *)&M, STRING_LENGTH);
 	
 	strncpy(k.key, "lol", STRING_LENGTH);
-	printf("Comparing %s with min: " "%" PRId64 "\n", k.key, strkey_compare_haxxorz(k, min));
-	printf("Comparing %s with max: " "%" PRId64 "\n", k.key, strkey_compare_haxxorz(k, max));
+	printf("Comparing %s with min: " "%" PRId64 "\n", k.key, strkey_compare(k, min));
+	printf("Comparing %s with max: " "%" PRId64 "\n", k.key, strkey_compare(k, max));
 
 	strncpy(k.key, "", STRING_LENGTH);
-	printf("Comparing %s with min: " "%" PRId64 "\n", k.key, strkey_compare_haxxorz(k, min));
-	printf("Comparing %s with max: " "%" PRId64 "\n", k.key, strkey_compare_haxxorz(k, max));
+	printf("Comparing %s with min: " "%" PRId64 "\n", k.key, strkey_compare(k, min));
+	printf("Comparing %s with max: " "%" PRId64 "\n", k.key, strkey_compare(k, max));
 
 	strncpy(k.key, "0", STRING_LENGTH);
-	printf("Comparing %s with min: " "%" PRId64 "\n", k.key, strkey_compare_haxxorz(k, min));
-	printf("Comparing %s with max: " "%" PRId64 "\n", k.key, strkey_compare_haxxorz(k, max));
+	printf("Comparing %s with min: " "%" PRId64 "\n", k.key, strkey_compare(k, min));
+	printf("Comparing %s with max: " "%" PRId64 "\n", k.key, strkey_compare(k, max));
 
 
 	strncpy(k.key, "zzz", STRING_LENGTH);
-	printf("Comparing %s with min: " "%" PRId64 "\n", k.key, strkey_compare_haxxorz(k, min));
-	printf("Comparing %s with max: " "%" PRId64 "\n", k.key, strkey_compare_haxxorz(k, max));
+	printf("Comparing %s with min: " "%" PRId64 "\n", k.key, strkey_compare(k, min));
+	printf("Comparing %s with max: " "%" PRId64 "\n", k.key, strkey_compare(k, max));
 
 
 }
@@ -135,7 +135,7 @@ TEST(PughTest, NewComparator) {
 	printf("k1 : %s " "%" PRId64 "\n", k1.key, *(int64_t *) k1.key );
 	printf("k2 : %s " "%" PRId64 "\n", k2.key, *(int64_t *) k2.key );
 
-	printf("Comparing %s and %s : " "%" PRId64 "\n", k1.key, k2.key, strkey_compare_haxxorz(k1, k2));
+	printf("Comparing %s and %s : " "%" PRId64 "\n", k1.key, k2.key, strkey_compare(k1, k2));
 }
 
 int main(int argc, char** argv) {

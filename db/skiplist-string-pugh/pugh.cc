@@ -1,3 +1,5 @@
+#if SL == 1
+
 #include "optimistic.h"
 #include "db/synchrobench-utils/utils.h"
 
@@ -14,6 +16,7 @@ extern ALIGNED(CACHE_LINE_SIZE) unsigned int levelmax;
 
 #define MAX_BACKOFF 131071
 #define HERLIHY_MAX_MAX_LEVEL 64 /* covers up to 2^64 elements */
+
 
 strval_t*
 optimistic_find(sl_intset_t *set, strkey_t key)
@@ -212,3 +215,5 @@ optimistic_delete(sl_intset_t *set, strkey_t key)
 
   return (strval_t*) &(succ->val);
 }
+
+#endif
