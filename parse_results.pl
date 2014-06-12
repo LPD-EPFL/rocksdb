@@ -104,11 +104,11 @@ while (<INPUT_FILE>) {
 	}
 
 
-	if (/rocksdb\.db\.get\.micros statistics Percentiles \:\=\> 50 \: ([0-9]*\.[0-9]*)/){
+	if (/^rocksdb\.db\.get\.micros statistics Percentiles ... 50 \: ([0-9]*\.[0-9]*)/){
 		$read_latency_micros = $1;
 	}
 
-	if (/rocksdb\.db\.write\.micros statistics Percentiles \:\=\> 50 \: ([0-9]*\.[0-9]*)/){
+	if (/^rocksdb\.db\.write\.micros statistics Percentiles ... 50 \: ([0-9]*\.[0-9]*)/){
 		$write_latency_micros = $1;
 	}
 
@@ -129,7 +129,7 @@ if ($backup_count != 0) {
 }
 
 
-print $out "$num_threads\t\t$avg_ops\t\t$avg_writes\t\t$avg_deletes\t\t$avg_gets\t\t$avg_string_creation\t\t$avg_write_to_disk\t\t$backup_count \n";
+print $out "$num_threads\t\t$avg_ops\t\t$avg_writes\t\t$avg_deletes\t\t$avg_gets\t\t$avg_string_creation\t\t$avg_write_to_disk\t\t$backup_count\t\t$read_latency_micros\t\t$write_latency_micros \n";
 print "Average vals ops: $avg_ops, writes: $avg_writes, deletes: $avg_deletes, gets: $avg_gets\t\t$avg_string_creation\t\t$avg_write_to_disk\t\t$backup_count\t\t$read_latency_micros\t\t$write_latency_micros\n";
 
 

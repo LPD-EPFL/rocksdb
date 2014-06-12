@@ -12,7 +12,7 @@ do
 		for numThreads in 1 2 4 8 16 19 24 32 40
 		do
 			#./db_test -u$update -d10 -n$numThreads -i1048576 | grep -w 'stopping\|Options' >> $filename
-			./db_test -u$update -d10 -n$numThreads -i$listSize | grep -w 'stopping\|Options\|Construct' >> $filename
+			./db_test -u$update -d10 -n$numThreads -i$listSize | grep -w 'stopping\|Options\|Construct\|rocksdb' >> $filename
 		done
 	done
 done
