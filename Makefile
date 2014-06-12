@@ -38,6 +38,10 @@ ifeq ($(PC_NAME), lpdxeon2680)
 	LOCK = TAS
 endif
 
+ifeq ($(PC_NAME), lpd48core)
+    CXXFLAGS += -DOPTERON -DPLATFORM_MCORE
+    LOCK = TAS 
+endif
 
 GC=1
 # PUGH = 1, HERLIHY=2, FRASER=3
