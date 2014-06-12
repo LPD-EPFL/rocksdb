@@ -3302,6 +3302,7 @@ int64_t DBImpl::TEST_MaxNextLevelOverlappingBytes() {
 Status DBImpl::Get(const ReadOptions& options,
                    const Slice& key,
                    std::string* value) {
+  StopWatch sw(env_, options_.statistics.get(), DB_GET, false);
   Status s = GetImpl(options, key, value);
   return s;
 }
@@ -3701,7 +3702,7 @@ Status DBImpl::Write(const WriteOptions& options, WriteBatch* my_batch) {
 
   if (our_memtable_){
     //std::cout<<"OANA: Our memtable in write function\n";
-
+    StopWatch sw(env_, options_.statistics.get(), DB_WRITE, false);
     Status status = WriteBatchInternal::InsertInto(w.batch, mem_, &options_, this,
                                                 options_.filter_deletes);
     //std::cout<<"OANA: status = "<<status.ToString()<<"\n";
