@@ -11,6 +11,8 @@
 #include "db/skiplist-string-pugh/intset.h"
 #elif SL == 2 // HERLIHY
 #include "db/skiplist-string-herlihy/intset.h"
+#elif SL == 3 // FRASER
+#include "db/skiplist-string-fraser/intset.h"
 #endif
 
 #include <iostream>

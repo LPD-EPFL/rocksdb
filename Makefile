@@ -40,7 +40,7 @@ endif
 
 
 GC=1
-# PUGH = 1, HERLIHY=2
+# PUGH = 1, HERLIHY=2, FRASER=3
 SL=1
 
 OPT += -D$(LOCK)

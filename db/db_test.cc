@@ -5,7 +5,7 @@
 //
 // Copyright (c) 2011 The LevelDB Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
-// found in the LICENSE file. See the AUTHORS file for names of contributors.
+// found in the LICENSE file. See the AUTHORS file for names of contributostrval_trs.
 
 #include <algorithm>
 #include <iostream>
@@ -43,6 +43,8 @@
 #include "db/skiplist-string-pugh/intset.h"
 #elif SL == 2 // HERLIHY
 #include "db/skiplist-string-herlihy/intset.h"
+#elif SL == 3 // FRASER
+#include "db/skiplist-string-fraser/intset.h"
 #endif
 
 #include "db/synchrobench-utils/barrier.h"

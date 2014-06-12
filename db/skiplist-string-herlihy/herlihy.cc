@@ -249,7 +249,7 @@ fraser_remove(sl_intset_t *set, strkey_t key)
   UPDATE_TRY();
 
   sl_node_t* succs[FRASER_MAX_MAX_LEVEL];
-  strval_t* result = nullptr;;
+  strval_t* result = nullptr;
 
   PARSE_START_TS(2);
   int found = fraser_search_no_cleanup_succs(set, key, succs);
