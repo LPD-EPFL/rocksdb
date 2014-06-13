@@ -21,6 +21,14 @@ my $avg_writes = 0;
 my $avg_deletes = 0;
 my $avg_gets = 0;
 
+my $total_flush_to_disk_time = 0;
+my $total_string_creation_time = 0;
+my $backup_count = 0;
+
+my $write_latency_micros = 0;
+my $read_latency_micros = 0;
+
+
 my $first_pass = 1;
 
 open (INPUT_FILE, "<$input_file")  || die "Can't open $input_file: $!\n";
@@ -37,9 +45,17 @@ while (<INPUT_FILE>) {
 			$avg_deletes = int($total_deletes/($num_threads * $duration));
 			$avg_gets = int($total_gets/($num_threads * $duration));
 
-			print $out "$num_threads\t\t$avg_ops\t\t$avg_writes\t\t$avg_deletes\t\t$avg_gets \n";
+			if ($backup_count != 0) {	
+				$avg_write_to_disk = int ($total_flush_to_disk_time/$backup_count);
+				$avg_string_creation = int ($total_string_creation_time/$backup_count);
+			} else{
+				$avg_write_to_disk = 0;
+				$avg_string_creation = 0;
+			}
 
-			print "Average vals ops: $avg_ops, writes: $avg_writes, deletes: $avg_deletes, gets: $avg_gets\n";
+			print $out "$num_threads\t\t$avg_ops\t\t$avg_writes\t\t$avg_deletes\t\t$avg_gets\t\t$avg_string_creation\t\t$avg_write_to_disk\t\t$backup_count\t\t$read_latency_micros\t\t$write_latency_micros\n";
+
+			print "Average vals ops: $avg_ops, writes: $avg_writes, deletes: $avg_deletes, gets: $avg_gets, bg_str_creation: $avg_string_creation, bg_flush_to_disk: $avg_write_to_disk, backup count: $backup_count \n";
 		} else {
 			$first_pass = 0;
 		}	
@@ -51,21 +67,24 @@ while (<INPUT_FILE>) {
 
 			print $out "\n\n";
 			print $out "## -i$list_size -u$update_percent\n";
-			print $out "#  cores\tops/s\twrites/s\tdeletes/s\tgets/s\n";
+			print $out "#  cores\tops/s\twrites/s\tdeletes/s\tgets/s\tbg_str_micros\tbg_flush_micros\tget_op_micros\twrite_op_micros\n";
 		}
 
 		$duration = $2;
 		$num_threads = $3;
 		print "$_";
 
-
-
-
-
 		$total_ops = 0;
 		$total_writes = 0;
 		$total_deletes = 0;
 		$total_gets = 0;
+		
+		$total_flush_to_disk_time = 0;
+		$total_string_creation_time = 0;
+		$backup_count = 0;
+
+		$write_latency_micros = 0;
+		$read_latency_micros = 0;
 		
 
 	} 
@@ -78,6 +97,22 @@ while (<INPUT_FILE>) {
 
 	}
 
+	if (/^Construct String microsec ([0-9]*) Flush to disk microsec ([0-9]*)/){
+		$total_string_creation_time += $1;
+		$total_flush_to_disk_time = $2;
+		$backup_count += 1;
+	}
+
+
+	if (/^rocksdb\.db\.get\.micros statistics Percentiles ... 50 \: ([0-9]*\.[0-9]*)/){
+		$read_latency_micros = $1;
+	}
+
+	if (/^rocksdb\.db\.write\.micros statistics Percentiles ... 50 \: ([0-9]*\.[0-9]*)/){
+		$write_latency_micros = $1;
+	}
+
+
 }
 
 $avg_ops = int($total_ops/($num_threads * $duration));
@@ -85,9 +120,19 @@ $avg_ops = int($total_ops/($num_threads * $duration));
 $avg_writes = int($total_writes/($num_threads * $duration));
 $avg_deletes = int($total_deletes/($num_threads * $duration));
 $avg_gets = int($total_gets/($num_threads * $duration));
-print $out "$num_threads\t\t$avg_ops\t\t$avg_writes\t\t$avg_deletes\t\t$avg_gets \n";
-print "Average vals ops: $avg_ops, writes: $avg_writes, deletes: $avg_deletes, gets: $avg_gets\n";
+if ($backup_count != 0) {
+    $avg_write_to_disk = int ($total_flush_to_disk_time/$backup_count);
+    $avg_string_creation = int ($total_string_creation_time/$backup_count);
+} else{
+    $avg_write_to_disk = 0;
+    $avg_string_creation = 0;
+}
+
+
+print $out "$num_threads\t\t$avg_ops\t\t$avg_writes\t\t$avg_deletes\t\t$avg_gets\t\t$avg_string_creation\t\t$avg_write_to_disk\t\t$backup_count\t\t$read_latency_micros\t\t$write_latency_micros \n";
+print "Average vals ops: $avg_ops, writes: $avg_writes, deletes: $avg_deletes, gets: $avg_gets\t\t$avg_string_creation\t\t$avg_write_to_disk\t\t$backup_count\t\t$read_latency_micros\t\t$write_latency_micros\n";
 
 
 close(INPUT_FILE);
 close $out;
+
